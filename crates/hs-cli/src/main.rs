@@ -22,6 +22,7 @@ Commands:
   list-demos                         List the built-in factory projects.
   demo <index|name> <output.wav>     Render a factory project.
   render <input.harp> <output.wav>   Render a saved project.
+  midi <input.harp> <output.mid>     Export arrangement clips as MIDI.
   inspect <input.harp>               Print song, track and clip counts.
   help, --help, -h                   Show this help.
   version, --version, -V             Print the CLI version.
@@ -34,6 +35,7 @@ enum Command {
     ListDemos,
     Demo { query: String, output: PathBuf },
     Render { input: PathBuf, output: PathBuf },
+    Midi { input: PathBuf, output: PathBuf },
     Inspect { input: PathBuf },
 }
 
@@ -83,6 +85,15 @@ fn parse_args(args: &[String]) -> Result<Command, String> {
                 output: PathBuf::from(&args[2]),
             })
         }
+        "midi" | "export-midi" => {
+            if args.len() != 3 {
+                return Err("midi expects an input .harp path and an output .mid path".to_string());
+            }
+            Ok(Command::Midi {
+                input: PathBuf::from(&args[1]),
+                output: PathBuf::from(&args[2]),
+            })
+        }
         "inspect" => {
             let Some(input) = args.get(1) else {
                 return Err("inspect expects an input .harp path".to_string());
@@ -122,6 +133,11 @@ fn run(command: Command) -> Result<(), String> {
             let song = load(&input)?;
             println!("project: {} ({} BPM)", song.name, song.bpm);
             render_song(&song, &output)
+        }
+        Command::Midi { input, output } => {
+            let song = load(&input)?;
+            println!("project: {} ({} BPM)", song.name, song.bpm);
+            write_midi(&song, &output)
         }
         Command::Inspect { input } => {
             let song = load(&input)?;
@@ -186,18 +202,34 @@ fn load(path: &Path) -> Result<Song, String> {
 }
 
 fn render_song(song: &Song, output: &Path) -> Result<(), String> {
-    if let Some(parent) = output.parent() {
-        if !parent.as_os_str().is_empty() {
-            fs::create_dir_all(parent)
-                .map_err(|error| format!("could not create {}: {error}", parent.display()))?;
-        }
-    }
+    ensure_parent(output)?;
     project::export_wav_to(song, output)
         .map_err(|error| format!("could not render {}: {error}", output.display()))?;
     let bytes = fs::metadata(output)
         .map(|metadata| metadata.len())
         .unwrap_or(0);
     println!("rendered: {} ({bytes} bytes)", output.display());
+    Ok(())
+}
+
+fn write_midi(song: &Song, output: &Path) -> Result<(), String> {
+    ensure_parent(output)?;
+    project::export_midi_to(song, output)
+        .map_err(|error| format!("could not write {}: {error}", output.display()))?;
+    let bytes = fs::metadata(output)
+        .map(|metadata| metadata.len())
+        .unwrap_or(0);
+    println!("wrote MIDI: {} ({bytes} bytes)", output.display());
+    Ok(())
+}
+
+fn ensure_parent(path: &Path) -> Result<(), String> {
+    if let Some(parent) = path.parent() {
+        if !parent.as_os_str().is_empty() {
+            fs::create_dir_all(parent)
+                .map_err(|error| format!("could not create {}: {error}", parent.display()))?;
+        }
+    }
     Ok(())
 }
 
@@ -260,7 +292,15 @@ mod tests {
                 output: PathBuf::from("mix.wav"),
             })
         );
+        assert_eq!(
+            parse_args(&args(&["midi", "song.harp", "song.mid"])),
+            Ok(Command::Midi {
+                input: PathBuf::from("song.harp"),
+                output: PathBuf::from("song.mid"),
+            })
+        );
         assert!(parse_args(&args(&["render", "only-one-path"])).is_err());
+        assert!(parse_args(&args(&["midi", "only-one-path"])).is_err());
         assert!(parse_args(&args(&["wat"])).is_err());
     }
 

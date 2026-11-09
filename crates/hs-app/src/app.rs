@@ -149,6 +149,7 @@ pub enum Act {
     LoadFile(PathBuf),
     Save,
     Export,
+    ExportMidi,
     New,
     AddTrack(DeviceKind),
     SetInstrument {
@@ -1127,6 +1128,13 @@ impl HarpsiApp {
                         self.flash(format!("Mixdown written to {}", path.display()));
                     }
                     Err(e) => self.flash(format!("Export failed: {e}")),
+                }
+            }
+            Act::ExportMidi => {
+                self.flash("Writing MIDI…");
+                match project::export_midi(&self.song) {
+                    Ok(path) => self.flash(format!("MIDI written to {}", path.display())),
+                    Err(e) => self.flash(format!("MIDI export failed: {e}")),
                 }
             }
             Act::New => {
@@ -3170,6 +3178,14 @@ impl HarpsiApp {
                     act = Some(Act::Export);
                 }
                 y += 34.0;
+                let midi_r = Rect::from_min_size(
+                    Pos2::new(content.left(), y),
+                    Vec2::new(content.width(), 26.0),
+                );
+                if chip(ui, midi_r, Id::unique("fmidi"), "EXPORT MIDI", false, DIM).clicked() {
+                    act = Some(Act::ExportMidi);
+                }
+                y += 32.0;
                 let new_r = Rect::from_min_size(Pos2::new(content.left(), y), Vec2::new(bw, 26.0));
                 let ref_r = Rect::from_min_size(
                     Pos2::new(content.left() + bw + 6.0, y),

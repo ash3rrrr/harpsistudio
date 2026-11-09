@@ -7,6 +7,10 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Added
 
+- Standard MIDI File export for arrangement clips from the desktop **FILES**
+  tab and `harpsistudio-cli midi`. It preserves tempo, track names, clip
+  markers, note timing and velocity. Session-only projects export their first
+  session clip per track, matching the WAV renderer's fallback.
 - Twelve new Drum Rack kits (25 total) voiced at load time from the embedded,
   already-licensed one-shots: Tape Crunch, Vinyl Dust, Sub Pressure, Glass
   Room, Warehouse, Dub Chamber, Pocket Drums, Neon Electro, Broken Beats, Deep
@@ -17,6 +21,8 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Changed
 
+- CI now smoke-tests `list-demos`, `inspect` and MIDI export through the release
+  `harpsistudio-cli` binary on Ubuntu.
 - Reorganized the contributor guides under `.github/`, added bug, feature and
   pull-request templates, and expanded the README with verified build and CLI
   instructions plus a gap-based roadmap.

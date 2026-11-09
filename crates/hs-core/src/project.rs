@@ -157,3 +157,16 @@ pub fn export_wav_to(song: &Song, path: &Path) -> Result<(), String> {
     let samples = Engine::render_song(song, sr as f32);
     write_wav(path, &samples, sr)
 }
+
+/// Write the arrangement as a Standard MIDI File next to saved projects.
+pub fn export_midi(song: &Song) -> Result<PathBuf, String> {
+    let dir = projects_dir();
+    let path = dir.join(format!("{} [MIDI].mid", sanitize(&song.name)));
+    export_midi_to(song, &path)?;
+    Ok(path)
+}
+
+/// Export arrangement clips to an explicit Standard MIDI File path.
+pub fn export_midi_to(song: &Song, path: &Path) -> Result<(), String> {
+    crate::midi_export::write(song, path)
+}

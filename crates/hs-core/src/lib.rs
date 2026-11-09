@@ -5,6 +5,7 @@ pub mod capture;
 pub mod devices;
 pub mod dsp;
 pub mod engine;
+pub mod midi_export;
 pub mod midi_fx;
 pub mod params;
 pub mod patterns;

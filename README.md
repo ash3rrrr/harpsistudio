@@ -38,6 +38,10 @@ included.
 - **One engine, two frontends.** The Windows UI and the headless
   `harpsistudio-cli` share the same `hs-core` song and offline-render path, so
   projects, demos and CI exports go through the same audio code.
+- **Open interchange.** Export arrangement clips as a Standard MIDI File from
+  **FILES** or the CLI. Tempo, track names, clip markers, note timing and
+  velocity travel into another DAW, while the readable `.harp` project remains
+  the source of truth.
 - **Open source without hidden audio.** The code is MIT; the embedded recordings
   keep their original CC0, CC BY or public-domain terms and attribution.
 
@@ -74,7 +78,8 @@ producing. The desktop UI targets Windows 10/11. The `hs-core` library and
 
 The `hs-cli` crate is a small, GUI-free frontend to the same song and render
 path used by **Mixdown**. It is useful for CI, batch exports, scripts and
-contributing without a Windows audio device.
+contributing without a Windows audio device. It also exports arrangement clips
+as a Standard MIDI File for use in another DAW.
 
 Build the CLI with the same command CI uses:
 
@@ -90,11 +95,13 @@ cargo run -p hs-cli -- list-demos
 cargo run -p hs-cli -- inspect "demo-artifacts/projects/Vocal Riddim.harp"
 cargo run -p hs-cli -- render "demo-artifacts/projects/Vocal Riddim.harp" "target/vocal-riddim.wav"
 cargo run -p hs-cli -- demo "Midnight House" "target/midnight-house.wav"
+cargo run -p hs-cli -- midi "demo-artifacts/projects/Vocal Riddim.harp" "target/vocal-riddim.mid"
 ```
 
 `demo` accepts either a number from `list-demos` or a unique name. `render`
-accepts any saved `.harp` project. Both create the output directory when
-needed and write the same 48 kHz, 16-bit stereo WAV as the desktop app.
+accepts any saved `.harp` project, and `midi` exports its arrangement clips as
+a format 1 Standard MIDI File. The commands create the output directory when
+needed; `render` writes the same 48 kHz, 16-bit stereo WAV as the desktop app.
 
 ## Start here: the Starters tab
 
@@ -488,7 +495,7 @@ clips on the same track.
 
 ## Files and export
 
-Projects and mixdowns live in:
+Projects, mixdowns and MIDI exports live in:
 
 ```text
 %USERPROFILE%\Documents\Harpsistudio
@@ -499,6 +506,10 @@ Projects and mixdowns live in:
 - **Mixdown** renders the arrangement (or the first session clip on each track
   when there is no arrangement) to a 16-bit stereo 48 kHz WAV. An imported
   vocal adds an arrangement clip automatically, so it is included in Mixdown.
+- **Export MIDI** in the Files tab writes a format 1 Standard MIDI File with
+  the song tempo, track names, clip markers and notes. Drum tracks use MIDI
+  channel 10; other tracks use channel 1. If there is no arrangement, it
+  exports the first session clip on each track, matching Mixdown.
 - The audio engine runs on the system output at its native sample rate. If the
   device is unavailable, editing/export still work; use the **AUDIO OFF**
   message or **RETRY AUDIO** in the Files tab.
@@ -543,7 +554,8 @@ harpsistudio/
 │  │  ├─ src/samples.rs         # embedded drum/piano bank and WAV decoder
 │  │  ├─ src/presets.rs         # factory demos and default patterns
 │  │  ├─ assets/patterns.tsv    # shipped pattern rows (name, tags, notes)
-│  │  ├─ src/project.rs         # .harp save/load and WAV export
+│  │  ├─ src/midi_export.rs      # format 1 Standard MIDI File writer
+│  │  ├─ src/project.rs         # .harp save/load, WAV and MIDI export
 │  │  ├─ src/song.rs            # Song/Track/Clip/Note model
 │  │  └─ examples/render_demo_artifacts.rs # reproducible delivery proof
 │  ├─ hs-app/                   # eframe/egui interface and CPAL audio device
@@ -581,7 +593,8 @@ cargo build --release -p hs-cli
 
 CI runs that set on Windows and Ubuntu (`.github/workflows/ci.yml`). The
 desktop UI is developed and manually checked on Windows; the headless core and
-CLI also build and test on Linux.
+CLI also build and test on Linux. The Ubuntu job smoke-tests `list-demos`,
+`inspect` and MIDI export through the release CLI binary.
 
 Tests cover the 25-kit/155-file sample bank, live-note release/sustain,
 clip+live coexistence, offline render checks for the factory demos, individual
@@ -600,7 +613,9 @@ loudness-spread assertion, a layered preview per genre, and MIDI-FX output for
 given arpeggiator/chord settings. Engine regression tests cover the global
 launch-quantum boundary, the queued clip state, and a NEXT follow-action
 handoff at the one-bar mark. A project test
-proves the MIDI chain survives save/load, and a starter test proves each of
+proves the MIDI chain survives save/load. A MIDI export test verifies the
+format-1 header, tempo meta event, track names, note timing and velocity, and
+the percussion channel. A starter test proves each of
 DUBSTEP, HOUSE, EDM and RAP carries a bassline, chord voicing and melodic lead,
 with dedicated rap-flow material. The `delivery` integration test exports all
 four starters through `project::export_wav_to` at 48 kHz, checks their final PCM
@@ -631,19 +646,19 @@ expectations.
 
 These are verified gaps in the current tree, not a generic wish list:
 
-1. **Good first issue — run the CLI in CI.** The workflow builds `hs-cli` but
-   never executes it. Add `list-demos` and `inspect` smoke checks to the Ubuntu
-   job so argument-parsing and project-loading regressions fail fast.
-2. **Good first issue — version `.harp` files.** Projects are currently
+1. **Good first issue — version `.harp` files.** Projects are currently
    pretty-printed `Song` JSON with no format field
    (`crates/hs-core/src/project.rs`). Add a schema version and a clear
    migration/error path for older or newer files.
-3. **Good first issue — exercise Linux desktop startup.** CI builds `hs-app` on
+2. **Good first issue — exercise Linux desktop startup.** CI builds `hs-app` on
    Ubuntu, but the UI is only manually checked on Windows. Document a tested
    distro/audio stack and add a headless startup smoke test.
-4. **Larger project — MIDI mapping and multiple ports.** Only the first input
+3. **Larger project — MIDI mapping and multiple ports.** Only the first input
    port is opened, and only note, velocity, sustain (CC64) and all-notes-off are
    handled (`crates/hs-app/src/midi.rs`). Add port selection and CC learn.
+4. **Larger project — import Standard MIDI Files.** Export now carries
+   arrangement clips into another DAW, but there is no MIDI importer. Add one
+   that maps tracks, tempo and notes into the song model, with round-trip tests.
 5. **Larger project — longer arrangements and richer import.** Arrangement
    editing is a 16-bar canvas, and audio import is WAV-only with eight-second
    mono takes. Extend both deliberately with regression coverage.

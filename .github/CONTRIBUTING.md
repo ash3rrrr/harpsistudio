@@ -64,7 +64,7 @@ The PR template repeats this checklist.
 ## Code layout
 
 - `crates/hs-core`: song model, DSP, engine, devices, presets, patterns,
-  project I/O, and offline WAV rendering.
+  project I/O, offline WAV rendering, and Standard MIDI File export.
 - `crates/hs-app`: eframe/egui desktop shell, views, audio device, and MIDI.
 - `crates/hs-cli`: headless project inspection and export.
 
