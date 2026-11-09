@@ -77,3 +77,10 @@ jobs:
           ./target/release/harpsistudio-cli inspect "demo-artifacts/projects/Vocal Riddim.harp"
           ./target/release/harpsistudio-cli midi "demo-artifacts/projects/Vocal Riddim.harp" target/vocal-riddim.mid
           test -s target/vocal-riddim.mid
+          ./target/release/harpsistudio-cli import-midi target/vocal-riddim.mid target/vocal-riddim-imported.harp
+          test -s target/vocal-riddim-imported.harp
+          ./target/release/harpsistudio-cli inspect target/vocal-riddim-imported.harp | tee target/vocal-riddim-imported.txt
+          grep -q '^tempo: 140.0 BPM$' target/vocal-riddim-imported.txt
+          grep -q '^tracks: 9$' target/vocal-riddim-imported.txt
+          grep -q '^arrangement clips: 15$' target/vocal-riddim-imported.txt
+          grep -q '^notes: 424$' target/vocal-riddim-imported.txt

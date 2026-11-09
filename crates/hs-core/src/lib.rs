@@ -7,6 +7,7 @@ pub mod dsp;
 pub mod engine;
 pub mod midi_export;
 pub mod midi_fx;
+pub mod midi_import;
 pub mod params;
 pub mod patterns;
 pub mod plugins;

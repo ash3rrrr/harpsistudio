@@ -10,6 +10,7 @@ use eframe::egui::{self, Align2, Color32, Id, Pos2, Rect, Sense, Ui, Vec2};
 use hs_core::audio_take::AudioTake;
 use hs_core::engine::{Cmd, Shared, MAX_TRACKS};
 use hs_core::midi_fx;
+use hs_core::midi_import;
 use hs_core::params::{Device, DeviceKind};
 use hs_core::patterns::{self, Genre, Role};
 use hs_core::plugins::{self, PluginCategory};
@@ -150,6 +151,7 @@ pub enum Act {
     Save,
     Export,
     ExportMidi,
+    ImportMidi,
     New,
     AddTrack(DeviceKind),
     SetInstrument {
@@ -1135,6 +1137,35 @@ impl HarpsiApp {
                 match project::export_midi(&self.song) {
                     Ok(path) => self.flash(format!("MIDI written to {}", path.display())),
                     Err(e) => self.flash(format!("MIDI export failed: {e}")),
+                }
+            }
+            Act::ImportMidi => {
+                let picked = rfd::FileDialog::new()
+                    .add_filter("Standard MIDI File", &["mid"])
+                    .set_title("Import a MIDI file")
+                    .pick_file();
+                if let Some(path) = picked {
+                    match midi_import::read(&path) {
+                        Ok(song) => {
+                            self.song = song;
+                            self.after_project_load();
+                            match project::save_song(&self.song) {
+                                Ok(saved) => {
+                                    self.files = project::list_projects();
+                                    self.flash(format!(
+                                        "Imported {} and saved {}",
+                                        path.display(),
+                                        saved.display()
+                                    ));
+                                }
+                                Err(e) => self.flash(format!(
+                                    "Imported {} but could not save the project: {e}",
+                                    path.display()
+                                )),
+                            }
+                        }
+                        Err(e) => self.flash(format!("MIDI import failed: {e}")),
+                    }
                 }
             }
             Act::New => {
@@ -3178,12 +3209,25 @@ impl HarpsiApp {
                     act = Some(Act::Export);
                 }
                 y += 34.0;
-                let midi_r = Rect::from_min_size(
-                    Pos2::new(content.left(), y),
-                    Vec2::new(content.width(), 26.0),
+                let midi_r = Rect::from_min_size(Pos2::new(content.left(), y), Vec2::new(bw, 26.0));
+                let import_r = Rect::from_min_size(
+                    Pos2::new(content.left() + bw + 6.0, y),
+                    Vec2::new(bw, 26.0),
                 );
                 if chip(ui, midi_r, Id::unique("fmidi"), "EXPORT MIDI", false, DIM).clicked() {
                     act = Some(Act::ExportMidi);
+                }
+                if chip(
+                    ui,
+                    import_r,
+                    Id::unique("fimidi"),
+                    "IMPORT MIDI",
+                    false,
+                    MINT,
+                )
+                .clicked()
+                {
+                    act = Some(Act::ImportMidi);
                 }
                 y += 32.0;
                 let new_r = Rect::from_min_size(Pos2::new(content.left(), y), Vec2::new(bw, 26.0));

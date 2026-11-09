@@ -23,6 +23,8 @@ Commands:
   demo <index|name> <output.wav>     Render a factory project.
   render <input.harp> <output.wav>   Render a saved project.
   midi <input.harp> <output.mid>     Export arrangement clips as MIDI.
+  import-midi <input.mid> <output.harp>
+                                     Import a Standard MIDI File.
   inspect <input.harp>               Print song, track and clip counts.
   help, --help, -h                   Show this help.
   version, --version, -V             Print the CLI version.
@@ -36,6 +38,7 @@ enum Command {
     Demo { query: String, output: PathBuf },
     Render { input: PathBuf, output: PathBuf },
     Midi { input: PathBuf, output: PathBuf },
+    ImportMidi { input: PathBuf, output: PathBuf },
     Inspect { input: PathBuf },
 }
 
@@ -94,6 +97,17 @@ fn parse_args(args: &[String]) -> Result<Command, String> {
                 output: PathBuf::from(&args[2]),
             })
         }
+        "import-midi" => {
+            if args.len() != 3 {
+                return Err(
+                    "import-midi expects an input .mid path and an output .harp path".to_string(),
+                );
+            }
+            Ok(Command::ImportMidi {
+                input: PathBuf::from(&args[1]),
+                output: PathBuf::from(&args[2]),
+            })
+        }
         "inspect" => {
             let Some(input) = args.get(1) else {
                 return Err("inspect expects an input .harp path".to_string());
@@ -138,6 +152,21 @@ fn run(command: Command) -> Result<(), String> {
             let song = load(&input)?;
             println!("project: {} ({} BPM)", song.name, song.bpm);
             write_midi(&song, &output)
+        }
+        Command::ImportMidi { input, output } => {
+            let song = hs_core::midi_import::read(&input)?;
+            println!(
+                "imported: {} ({} BPM, {} tracks, {} notes)",
+                song.name,
+                song.bpm,
+                song.tracks.len(),
+                song.tracks
+                    .iter()
+                    .flat_map(|track| track.clips.iter())
+                    .map(|clip| clip.notes.len())
+                    .sum::<usize>()
+            );
+            write_project(&song, &output)
         }
         Command::Inspect { input } => {
             let song = load(&input)?;
@@ -223,6 +252,17 @@ fn write_midi(song: &Song, output: &Path) -> Result<(), String> {
     Ok(())
 }
 
+fn write_project(song: &Song, output: &Path) -> Result<(), String> {
+    ensure_parent(output)?;
+    project::save_song_to(song, output)
+        .map_err(|error| format!("could not write {}: {error}", output.display()))?;
+    let bytes = fs::metadata(output)
+        .map(|metadata| metadata.len())
+        .unwrap_or(0);
+    println!("wrote project: {} ({bytes} bytes)", output.display());
+    Ok(())
+}
+
 fn ensure_parent(path: &Path) -> Result<(), String> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
@@ -299,8 +339,16 @@ mod tests {
                 output: PathBuf::from("song.mid"),
             })
         );
+        assert_eq!(
+            parse_args(&args(&["import-midi", "song.mid", "song.harp"])),
+            Ok(Command::ImportMidi {
+                input: PathBuf::from("song.mid"),
+                output: PathBuf::from("song.harp"),
+            })
+        );
         assert!(parse_args(&args(&["render", "only-one-path"])).is_err());
         assert!(parse_args(&args(&["midi", "only-one-path"])).is_err());
+        assert!(parse_args(&args(&["import-midi", "only-one-path"])).is_err());
         assert!(parse_args(&args(&["wat"])).is_err());
     }
 

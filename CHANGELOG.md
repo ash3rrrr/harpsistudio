@@ -11,6 +11,11 @@ All notable changes to Harpsistudio are documented here. The project follows
   tab and `harpsistudio-cli midi`. It preserves tempo, track names, clip
   markers, note timing and velocity. Session-only projects export their first
   session clip per track, matching the WAV renderer's fallback.
+- Standard MIDI File import through **FILES → IMPORT MIDI** and
+  `harpsistudio-cli import-midi`. It reads format 0/1 files, restores tempo,
+  track names, clip markers, notes, velocities and channel 10 Drum Rack tracks,
+  then saves the result as a regular `.harp` project. Malformed or truncated
+  files fail with a clear error.
 - Twelve new Drum Rack kits (25 total) voiced at load time from the embedded,
   already-licensed one-shots: Tape Crunch, Vinyl Dust, Sub Pressure, Glass
   Room, Warehouse, Dub Chamber, Pocket Drums, Neon Electro, Broken Beats, Deep
@@ -21,8 +26,10 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Changed
 
-- CI now smoke-tests `list-demos`, `inspect` and MIDI export through the release
-  `harpsistudio-cli` binary on Ubuntu.
+- CI now smoke-tests `list-demos`, `inspect`, MIDI export and MIDI import
+  through the release `harpsistudio-cli` binary on Ubuntu.
+- Added MIDI import round-trip coverage for the **Vocal Riddim** factory demo,
+  plus hand-built fixtures for running status, channel 10 and malformed input.
 - Reorganized the contributor guides under `.github/`, added bug, feature and
   pull-request templates, and expanded the README with verified build and CLI
   instructions plus a gap-based roadmap.

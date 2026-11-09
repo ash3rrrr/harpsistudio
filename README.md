@@ -39,9 +39,10 @@ included.
   `harpsistudio-cli` share the same `hs-core` song and offline-render path, so
   projects, demos and CI exports go through the same audio code.
 - **Open interchange.** Export arrangement clips as a Standard MIDI File from
-  **FILES** or the CLI. Tempo, track names, clip markers, note timing and
-  velocity travel into another DAW, while the readable `.harp` project remains
-  the source of truth.
+  **FILES** or the CLI, then import one back into a `.harp` project. Tempo,
+  track names, clip markers, note timing and velocity survive the round trip;
+  channel 10 returns as a Drum Rack track, while melodic tracks load on FM
+  Keys. The readable `.harp` project remains the source of truth.
 - **Open source without hidden audio.** The code is MIT; the embedded recordings
   keep their original CC0, CC BY or public-domain terms and attribution.
 
@@ -78,8 +79,8 @@ producing. The desktop UI targets Windows 10/11. The `hs-core` library and
 
 The `hs-cli` crate is a small, GUI-free frontend to the same song and render
 path used by **Mixdown**. It is useful for CI, batch exports, scripts and
-contributing without a Windows audio device. It also exports arrangement clips
-as a Standard MIDI File for use in another DAW.
+contributing without a Windows audio device. It converts arrangement clips to
+and from Standard MIDI Files for interchange with another DAW.
 
 Build the CLI with the same command CI uses:
 
@@ -96,12 +97,16 @@ cargo run -p hs-cli -- inspect "demo-artifacts/projects/Vocal Riddim.harp"
 cargo run -p hs-cli -- render "demo-artifacts/projects/Vocal Riddim.harp" "target/vocal-riddim.wav"
 cargo run -p hs-cli -- demo "Midnight House" "target/midnight-house.wav"
 cargo run -p hs-cli -- midi "demo-artifacts/projects/Vocal Riddim.harp" "target/vocal-riddim.mid"
+cargo run -p hs-cli -- import-midi "target/vocal-riddim.mid" "target/vocal-riddim-imported.harp"
 ```
 
 `demo` accepts either a number from `list-demos` or a unique name. `render`
 accepts any saved `.harp` project, and `midi` exports its arrangement clips as
-a format 1 Standard MIDI File. The commands create the output directory when
-needed; `render` writes the same 48 kHz, 16-bit stereo WAV as the desktop app.
+a format 1 Standard MIDI File. `import-midi` reads format 0/1 MIDI, restores
+tempo, track names, clip markers and notes, and writes a normal `.harp` project;
+channel 10 becomes a Drum Rack track and melodic tracks use FM Keys. The
+commands create the output directory when needed; `render` writes the same
+48 kHz, 16-bit stereo WAV as the desktop app.
 
 ## Start here: the Starters tab
 
@@ -126,8 +131,8 @@ so saving and loading never depends on the original file path.
 Each starter is an ordinary project. Change the kit, replace devices, edit notes
 or save your own version. **PATS** holds the pattern library; **SOUNDS** opens
 the 1,440-sound library, the 100 plugin racks and the raw device list; **DEMOS**
-has all eleven factory projects; **FILES** handles save, mixdown and recent
-projects.
+has all eleven factory projects; **FILES** handles save, mixdown, MIDI
+import/export and recent projects.
 
 ## Patterns and MIDI generators
 
@@ -506,10 +511,16 @@ Projects, mixdowns and MIDI exports live in:
 - **Mixdown** renders the arrangement (or the first session clip on each track
   when there is no arrangement) to a 16-bit stereo 48 kHz WAV. An imported
   vocal adds an arrangement clip automatically, so it is included in Mixdown.
-- **Export MIDI** in the Files tab writes a format 1 Standard MIDI File with
+- **EXPORT MIDI** in the Files tab writes a format 1 Standard MIDI File with
   the song tempo, track names, clip markers and notes. Drum tracks use MIDI
   channel 10; other tracks use channel 1. If there is no arrangement, it
   exports the first session clip on each track, matching Mixdown.
+- **IMPORT MIDI** sits next to **EXPORT MIDI**: choose a format 0/1 `.mid`
+  file, and Harpsistudio rebuilds tracks and arrangement clips, loads the song,
+  and saves it to `Documents\Harpsistudio` as a `.harp` project. Clip markers
+  become arrangement clips, channel 10 becomes a Drum Rack track, and melodic
+  tracks load with FM Keys. The MIDI file does not contain the original
+  instruments or effects, so those are intentionally not reconstructed.
 - The audio engine runs on the system output at its native sample rate. If the
   device is unavailable, editing/export still work; use the **AUDIO OFF**
   message or **RETRY AUDIO** in the Files tab.
@@ -555,6 +566,7 @@ harpsistudio/
 │  │  ├─ src/presets.rs         # factory demos and default patterns
 │  │  ├─ assets/patterns.tsv    # shipped pattern rows (name, tags, notes)
 │  │  ├─ src/midi_export.rs      # format 1 Standard MIDI File writer
+│  │  ├─ src/midi_import.rs      # format 0/1 Standard MIDI File reader
 │  │  ├─ src/project.rs         # .harp save/load, WAV and MIDI export
 │  │  ├─ src/song.rs            # Song/Track/Clip/Note model
 │  │  └─ examples/render_demo_artifacts.rs # reproducible delivery proof
@@ -594,7 +606,7 @@ cargo build --release -p hs-cli
 CI runs that set on Windows and Ubuntu (`.github/workflows/ci.yml`). The
 desktop UI is developed and manually checked on Windows; the headless core and
 CLI also build and test on Linux. The Ubuntu job smoke-tests `list-demos`,
-`inspect` and MIDI export through the release CLI binary.
+`inspect`, MIDI export and MIDI import through the release CLI binary.
 
 Tests cover the 25-kit/155-file sample bank, live-note release/sustain,
 clip+live coexistence, offline render checks for the factory demos, individual
@@ -615,7 +627,10 @@ launch-quantum boundary, the queued clip state, and a NEXT follow-action
 handoff at the one-bar mark. A project test
 proves the MIDI chain survives save/load. A MIDI export test verifies the
 format-1 header, tempo meta event, track names, note timing and velocity, and
-the percussion channel. A starter test proves each of
+the percussion channel. MIDI importer fixtures cover running status, channel
+10, truncated data and missing end-of-track events, and a `midi_round_trip`
+integration test exports **Vocal Riddim**, imports it and checks all 424 notes,
+9 tracks, 15 clip markers and the tempo. A starter test proves each of
 DUBSTEP, HOUSE, EDM and RAP carries a bassline, chord voicing and melodic lead,
 with dedicated rap-flow material. The `delivery` integration test exports all
 four starters through `project::export_wav_to` at 48 kHz, checks their final PCM
@@ -656,12 +671,13 @@ These are verified gaps in the current tree, not a generic wish list:
 3. **Larger project — MIDI mapping and multiple ports.** Only the first input
    port is opened, and only note, velocity, sustain (CC64) and all-notes-off are
    handled (`crates/hs-app/src/midi.rs`). Add port selection and CC learn.
-4. **Larger project — import Standard MIDI Files.** Export now carries
-   arrangement clips into another DAW, but there is no MIDI importer. Add one
-   that maps tracks, tempo and notes into the song model, with round-trip tests.
-5. **Larger project — longer arrangements and richer import.** Arrangement
-   editing is a 16-bar canvas, and audio import is WAV-only with eight-second
-   mono takes. Extend both deliberately with regression coverage.
+4. **Larger project — richer MIDI import.** The importer handles format 0/1,
+   4/4 files and performance data, but not automation, pitch bend, tempo maps,
+   odd meters or original instrument identity. Add those deliberately with
+   round-trip fixtures.
+5. **Larger project — longer arrangements and richer audio import.**
+   Arrangement editing is a 16-bar canvas, and audio import is WAV-only with
+   eight-second mono takes. Extend both deliberately with regression coverage.
 
 Read [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) for the exact gate set,
 the audio-asset rules and the drum-kit workflow. Fork the repository, create a
@@ -686,3 +702,7 @@ attribution details.
 - Mixdown renders synchronously, so the window pauses briefly during export.
 - MIDI recording/controller mapping is limited to note, velocity and sustain;
   only the first input port is opened.
+- MIDI import supports format 0/1, ticks-per-quarter timing and 4/4. SMPTE
+  timing and other meters fail clearly. Instruments and effects do not travel
+  in MIDI, so imported melodic tracks use FM Keys and percussion uses Drum
+  Rack.

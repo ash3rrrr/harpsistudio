@@ -27,6 +27,8 @@ Run the headless tools without the GUI:
 cargo run -p hs-cli -- list-demos
 cargo run -p hs-cli -- inspect "demo-artifacts/projects/Vocal Riddim.harp"
 cargo run -p hs-cli -- demo "Midnight House" "target/midnight-house.wav"
+cargo run -p hs-cli -- midi "demo-artifacts/projects/Vocal Riddim.harp" "target/vocal-riddim.mid"
+cargo run -p hs-cli -- import-midi "target/vocal-riddim.mid" "target/vocal-riddim-imported.harp"
 ```
 
 ## Run the CI gates locally
@@ -64,9 +66,9 @@ The PR template repeats this checklist.
 ## Code layout
 
 - `crates/hs-core`: song model, DSP, engine, devices, presets, patterns,
-  project I/O, offline WAV rendering, and Standard MIDI File export.
+  project I/O, offline WAV rendering, and Standard MIDI File import/export.
 - `crates/hs-app`: eframe/egui desktop shell, views, audio device, and MIDI.
-- `crates/hs-cli`: headless project inspection and export.
+- `crates/hs-cli`: headless project inspection, rendering and MIDI conversion.
 
 The GUI publishes immutable song snapshots and sends edits through a command
 channel. Preserve that separation when changing realtime behavior.

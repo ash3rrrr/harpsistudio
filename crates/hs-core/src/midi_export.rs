@@ -11,7 +11,7 @@ use std::fs;
 use std::path::Path;
 
 pub const TICKS_PER_QUARTER: u16 = 480;
-const DRUM_CHANNEL: u8 = 9;
+pub(crate) const DRUM_CHANNEL: u8 = 9;
 
 struct Event {
     tick: u64,
