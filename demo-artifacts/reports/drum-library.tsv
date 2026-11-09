@@ -207,3 +207,195 @@ kit	kit_name	lane	label	midi_note	sample_index
 12	TR-808 Studio	13	Snare Long	50	152
 12	TR-808 Studio	14	Mid Tom	41	153
 12	TR-808 Studio	15	High Tom	48	154
+13	Tape Crunch	0	Kick	36	34
+13	Tape Crunch	1	Snare	38	35
+13	Tape Crunch	2	Clap	39	36
+13	Tape Crunch	3	Hat	42	37
+13	Tape Crunch	4	Open Hat	46	38
+13	Tape Crunch	5	Low Tom	45	39
+13	Tape Crunch	6	Crash	49	40
+13	Tape Crunch	7	Rim	37	35
+13	Tape Crunch	8	Sub 808	35	41
+13	Tape Crunch	9	Perc	43	42
+13	Tape Crunch	10	Shaker	70	37
+13	Tape Crunch	11	Ride	51	40
+13	Tape Crunch	12	Cowbell	56	36
+13	Tape Crunch	13	Snap	50	36
+13	Tape Crunch	14	Floor Tom	41	39
+13	Tape Crunch	15	High Tom	48	39
+14	Vinyl Dust	0	Kick	36	34
+14	Vinyl Dust	1	Snare	38	35
+14	Vinyl Dust	2	Clap	39	36
+14	Vinyl Dust	3	Hat	42	37
+14	Vinyl Dust	4	Open Hat	46	38
+14	Vinyl Dust	5	Low Tom	45	39
+14	Vinyl Dust	6	Crash	49	40
+14	Vinyl Dust	7	Rim	37	35
+14	Vinyl Dust	8	Sub 808	35	41
+14	Vinyl Dust	9	Perc	43	42
+14	Vinyl Dust	10	Shaker	70	37
+14	Vinyl Dust	11	Ride	51	40
+14	Vinyl Dust	12	Cowbell	56	36
+14	Vinyl Dust	13	Snap	50	36
+14	Vinyl Dust	14	Floor Tom	41	39
+14	Vinyl Dust	15	High Tom	48	39
+15	Sub Pressure	0	Kick	36	12
+15	Sub Pressure	1	Snare	38	13
+15	Sub Pressure	2	Clap	39	15
+15	Sub Pressure	3	Hat	42	16
+15	Sub Pressure	4	Open Hat	46	17
+15	Sub Pressure	5	Low Tom	45	18
+15	Sub Pressure	6	Crash	49	19
+15	Sub Pressure	7	Rim	37	20
+15	Sub Pressure	8	Sub 808	35	21
+15	Sub Pressure	9	Perc	43	22
+15	Sub Pressure	10	Shaker	70	16
+15	Sub Pressure	11	Ride	51	19
+15	Sub Pressure	12	Cowbell	56	22
+15	Sub Pressure	13	Snap	50	14
+15	Sub Pressure	14	Floor Tom	41	18
+15	Sub Pressure	15	High Tom	48	18
+16	Glass Room	0	Marimba C2	36	123
+16	Glass Room	1	Marimba F1	38	124
+16	Glass Room	2	Marimba G2	39	125
+16	Glass Room	3	Marimba B2	42	126
+16	Glass Room	4	Marimba C4	46	127
+16	Glass Room	5	Marimba F3	45	128
+16	Glass Room	6	Marimba G4	49	129
+16	Glass Room	7	Marimba B4	37	130
+16	Glass Room	8	Marimba C6	35	131
+16	Glass Room	9	Glock G4	43	132
+16	Glass Room	10	Glock C5	70	133
+16	Glass Room	11	Glock G6	51	134
+16	Glass Room	12	Xylo G3	56	135
+16	Glass Room	13	Xylo C4	50	136
+16	Glass Room	14	Bell C4	41	137
+16	Glass Room	15	Bell G4	48	138
+17	Warehouse Kit	0	Kick	36	24
+17	Warehouse Kit	1	Snare	38	25
+17	Warehouse Kit	2	Clap	39	27
+17	Warehouse Kit	3	Hat	42	28
+17	Warehouse Kit	4	Open Hat	46	29
+17	Warehouse Kit	5	Low Tom	45	30
+17	Warehouse Kit	6	Crash	49	32
+17	Warehouse Kit	7	Rim	37	26
+17	Warehouse Kit	8	Sub 808	35	33
+17	Warehouse Kit	9	Perc	43	31
+17	Warehouse Kit	10	Shaker	70	28
+17	Warehouse Kit	11	Ride	51	32
+17	Warehouse Kit	12	Cowbell	56	26
+17	Warehouse Kit	13	Snap	50	26
+17	Warehouse Kit	14	Floor Tom	41	30
+17	Warehouse Kit	15	High Tom	48	31
+18	Dub Chamber	0	Kick	36	43
+18	Dub Chamber	1	Snare	38	44
+18	Dub Chamber	2	Stick	39	45
+18	Dub Chamber	3	Closed Hat	42	46
+18	Dub Chamber	4	Open Hat	46	47
+18	Dub Chamber	5	Low Tom	45	48
+18	Dub Chamber	6	Crash	49	49
+18	Dub Chamber	7	Off Snare	37	50
+18	Dub Chamber	8	Kick 2	35	51
+18	Dub Chamber	9	Splash	43	52
+18	Dub Chamber	10	Foot Hat	70	53
+18	Dub Chamber	11	Ride	51	54
+18	Dub Chamber	12	Cowbell	56	55
+18	Dub Chamber	13	Snare 2	50	56
+18	Dub Chamber	14	Floor Tom	41	57
+18	Dub Chamber	15	High Tom	48	58
+19	Pocket Drums	0	Kick	36	0
+19	Pocket Drums	1	Snare	38	1
+19	Pocket Drums	2	Clap	39	2
+19	Pocket Drums	3	Hat	42	4
+19	Pocket Drums	4	Open Hat	46	5
+19	Pocket Drums	5	Low Tom	45	6
+19	Pocket Drums	6	Crash	49	9
+19	Pocket Drums	7	Rim	37	2
+19	Pocket Drums	8	Sub 808	35	0
+19	Pocket Drums	9	Perc	43	7
+19	Pocket Drums	10	Shaker	70	11
+19	Pocket Drums	11	Ride	51	10
+19	Pocket Drums	12	Cowbell	56	3
+19	Pocket Drums	13	Snap	50	2
+19	Pocket Drums	14	Floor Tom	41	8
+19	Pocket Drums	15	High Tom	48	7
+20	Neon Electro	0	Kick	36	139
+20	Neon Electro	1	Snare	38	140
+20	Neon Electro	2	Clap	39	141
+20	Neon Electro	3	Closed Hat	42	142
+20	Neon Electro	4	Open Hat	46	143
+20	Neon Electro	5	Low Tom	45	144
+20	Neon Electro	6	Cymbal	49	145
+20	Neon Electro	7	Rim	37	146
+20	Neon Electro	8	Long 808	35	147
+20	Neon Electro	9	Claves	43	148
+20	Neon Electro	10	Maracas	70	149
+20	Neon Electro	11	Ride	51	150
+20	Neon Electro	12	Cowbell	56	151
+20	Neon Electro	13	Snare Long	50	152
+20	Neon Electro	14	Mid Tom	41	153
+20	Neon Electro	15	High Tom	48	154
+21	Broken Beats	0	Kick	36	24
+21	Broken Beats	1	Snare	38	25
+21	Broken Beats	2	Clap	39	27
+21	Broken Beats	3	Hat	42	28
+21	Broken Beats	4	Open Hat	46	29
+21	Broken Beats	5	Low Tom	45	30
+21	Broken Beats	6	Crash	49	32
+21	Broken Beats	7	Rim	37	26
+21	Broken Beats	8	Sub 808	35	33
+21	Broken Beats	9	Perc	43	31
+21	Broken Beats	10	Shaker	70	28
+21	Broken Beats	11	Ride	51	32
+21	Broken Beats	12	Cowbell	56	26
+21	Broken Beats	13	Snap	50	26
+21	Broken Beats	14	Floor Tom	41	30
+21	Broken Beats	15	High Tom	48	31
+22	Deep 909	0	Kick	36	139
+22	Deep 909	1	Snare	38	140
+22	Deep 909	2	Clap	39	141
+22	Deep 909	3	Closed Hat	42	142
+22	Deep 909	4	Open Hat	46	143
+22	Deep 909	5	Low Tom	45	144
+22	Deep 909	6	Cymbal	49	145
+22	Deep 909	7	Rim	37	146
+22	Deep 909	8	Long 808	35	147
+22	Deep 909	9	Claves	43	148
+22	Deep 909	10	Maracas	70	149
+22	Deep 909	11	Ride	51	150
+22	Deep 909	12	Cowbell	56	151
+22	Deep 909	13	Snare Long	50	152
+22	Deep 909	14	Mid Tom	41	153
+22	Deep 909	15	High Tom	48	154
+23	Hard Techno	0	Kick	36	12
+23	Hard Techno	1	Snare	38	13
+23	Hard Techno	2	Clap	39	15
+23	Hard Techno	3	Hat	42	16
+23	Hard Techno	4	Open Hat	46	17
+23	Hard Techno	5	Low Tom	45	18
+23	Hard Techno	6	Crash	49	19
+23	Hard Techno	7	Rim	37	20
+23	Hard Techno	8	Sub 808	35	23
+23	Hard Techno	9	Perc	43	22
+23	Hard Techno	10	Shaker	70	16
+23	Hard Techno	11	Ride	51	19
+23	Hard Techno	12	Cowbell	56	22
+23	Hard Techno	13	Snap	50	14
+23	Hard Techno	14	Floor Tom	41	18
+23	Hard Techno	15	High Tom	48	18
+24	Cinematic Hits	0	Bass Drum	36	107
+24	Cinematic Hits	1	Snare	38	108
+24	Cinematic Hits	2	Rimshot	39	109
+24	Cinematic Hits	3	Sleigh Bells	42	110
+24	Cinematic Hits	4	Susp Cym	46	111
+24	Cinematic Hits	5	Tenor Low	45	112
+24	Cinematic Hits	6	Crash	49	113
+24	Cinematic Hits	7	Claves	37	114
+24	Cinematic Hits	8	Muted BD	35	115
+24	Cinematic Hits	9	Low Conga	43	116
+24	Cinematic Hits	10	Shaker	70	117
+24	Cinematic Hits	11	Cym Ride	51	118
+24	Cinematic Hits	12	Cowbell	56	119
+24	Cinematic Hits	13	Snare Off	50	120
+24	Cinematic Hits	14	Tenor Floor	41	121
+24	Cinematic Hits	15	Tenor High	48	122

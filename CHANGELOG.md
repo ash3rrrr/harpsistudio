@@ -15,6 +15,12 @@ All notable changes to Harpsistudio are documented here. The project follows
   sound library grows from 1,152 to 1,440 sounds (60 families) because each
   Drum Rack preset contributes its own family.
 
+### Changed
+
+- Regenerated the checked-in delivery artifacts; the drum-library audition now
+  covers all 25 kits (400 mappings) and the generated reports use the current
+  counts and bar lengths.
+
 ## [0.1.0] - 2026-11-09
 
 This is the first open-source release candidate. The source was previously

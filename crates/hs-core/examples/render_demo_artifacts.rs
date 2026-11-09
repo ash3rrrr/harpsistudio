@@ -433,7 +433,8 @@ fn main() {
     let drum_db = 20.0 * drum_info.peak.max(1e-9).log10();
     writeln!(
         &mut tsv,
-        "drum-library-audition.wav\t120\t104\t{:.3}\t{:.6}\t{:+.2}\t{:.6}\t{:+.7}\t{}\t{:.3}",
+        "drum-library-audition.wav\t120\t{:.0}\t{:.3}\t{:.6}\t{:+.2}\t{:.6}\t{:+.7}\t{}\t{:.3}",
+        drum_song.length_beats() / 4.0,
         drum_info.duration_s,
         drum_info.peak,
         drum_db,
@@ -542,7 +543,12 @@ fn main() {
     report.push_str("- Starters/demos: `presets::demo_song(index)` — the same factory songs loaded by the START cards and `Act::LoadDemo`.\n");
     report.push_str("- Mixdown: `project::export_wav_to` — the function called by `project::export_wav`, which `Act::Export` invokes.\n");
     report.push_str("- Vocal: `AudioTake::from_wav_file` → `presets::add_vocal_bass_track` — the same import/install path as Voice → Bass.\n");
-    report.push_str("- Drum library: 13 Drum Rack kits × 16 lanes through `Engine::render_song` and the same WAV writer.\n\n");
+    writeln!(
+        report,
+        "- Drum library: {} Drum Rack kits × 16 lanes through `Engine::render_song` and the same WAV writer.\n",
+        drum_kit_count()
+    )
+    .unwrap();
     report.push_str("## Render contract\n\n");
     report.push_str(
         "| file | bpm | bars | seconds | peak dBFS | RMS | DC | clipped | low fraction |\n",
@@ -577,7 +583,8 @@ fn main() {
     .unwrap();
     writeln!(
         report,
-        "| `drum-library-audition.wav` | 120 | 104 | {:.2} | {:+.1} | {:.4} | {:+.6} | {} | {:.3} |",
+        "| `drum-library-audition.wav` | 120 | {:.0} | {:.2} | {:+.1} | {:.4} | {:+.6} | {} | {:.3} |",
+        drum_song.length_beats() / 4.0,
         drum_info.duration_s,
         drum_db,
         drum_info.rms,

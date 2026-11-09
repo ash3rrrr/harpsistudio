@@ -5,6 +5,8 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 description = "Headless render and inspection CLI for Harpsistudio projects"
+keywords = ["audio", "music", "cli", "render", "wav"]
+categories = ["command-line-utilities", "multimedia::audio"]
 
 [[bin]]
 name = "harpsistudio-cli"

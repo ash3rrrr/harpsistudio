@@ -159,7 +159,7 @@ enum and integer switches on real positions. The tests load all 1,440 sounds,
 insert all 100 racks, and render a library sound through a library rack with
 the real song engine. The quota test requires at least 1,000 sounds and at
 least 100 plugins. A save/load round-trip test covers one representative from
-each of the 48 sound families and all 20 plugin families, while uniqueness
+each of the 60 sound families and all 20 plugin families, while uniqueness
 tests reject duplicate parameter settings or chains anywhere in the catalogue.
 A headless egui test also drives the shipped SNDS
 browser with synthetic clicks and typing, asserting the SOUNDS/PLUGINS/DEVICES
@@ -490,7 +490,7 @@ Projects and mixdowns live in:
 ## Delivery proof artifacts
 
 The checked-in `demo-artifacts/` directory contains four complete genre
-mixdowns, a supplied-vocal Bassify render, a 13-kit drum-library audition, a
+mixdowns, a supplied-vocal Bassify render, a 25-kit drum-library audition, a
 Salamander + MIDI-FX render, and the measured reports. The four starters are
 rendered from the shipped `presets::demo_song` factory songs through
 `project::export_wav_to`, the same renderer behind the UI's **MIXDOWN** action.
@@ -546,15 +546,22 @@ across snapshots, so turning a knob does not restart notes.
 
 ## Development
 
+Run the same gates as CI:
+
 ```bat
-cargo check
-cargo test --workspace
-cargo build --release
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace --no-fail-fast
+cargo build --release -p hs-app
 cargo build --release -p hs-cli
 ```
 
+CI runs that set on Windows and Ubuntu (`.github/workflows/ci.yml`). The
+desktop UI is developed and manually checked on Windows; the headless core and
+CLI also build and test on Linux.
+
 Tests cover the 25-kit/155-file sample bank, live-note release/sustain,
-clip+live coexistence, offline render checks for all ten demos, individual
+clip+live coexistence, offline render checks for the factory demos, individual
 renders of every one-shot (400 kit-lane probes, 155 unique files), a measured
 kit-balance assertion, and a real WAV vocal fixture rendered
 through import → clip → Vocal Take → Bassify/Wobble. The vocal tests assert the
@@ -596,6 +603,16 @@ gates, code layout, screenshot expectations and the rules for legally clean
 audio assets. [SECURITY.md](SECURITY.md) explains private vulnerability
 reporting, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) sets the community
 expectations.
+
+### Get involved
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md), including the exact CI gate set and
+   the guide for adding a recorded or voiced drum kit.
+2. Fork the repository, create a topic branch, and run the **Development**
+   commands above before opening a pull request.
+3. Good first contributions are focused bug fixes, regression tests,
+   documentation, factory patterns, and CC0/public-domain sample content with
+   complete attribution.
 
 ## Limitations
 

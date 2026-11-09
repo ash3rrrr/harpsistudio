@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+description = "DSP, song model, embedded sample bank and offline renderer for the Harpsistudio beat workstation"
+keywords = ["audio", "dsp", "music", "synthesizer", "sampler"]
+categories = ["multimedia::audio"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

@@ -76,6 +76,43 @@ Code contributions are accepted under the MIT License. By submitting a sample
 or other asset, you confirm that you have the right to license it under the
 terms recorded in the attribution file.
 
+## Adding or changing a drum kit
+
+The Drum Rack bank lives in `crates/hs-core/src/samples.rs`. There are two ways
+to add a kit, and both must keep the embedded-file coverage and level tests
+green.
+
+### A recorded kit
+
+1. Add mono 44.1 kHz PCM WAV one-shots under
+   `crates/hs-core/assets/audio/drums/<kit>/`, one per lane you need.
+2. Add each file to `DRUM_FILES` with `include_bytes!`, then add that kit's row
+   to `KIT_SAMPLES` using the column order documented above the table.
+3. Add the display name to `KIT_NAMES`, add a starting `0.0` entry to
+   `KIT_TRIM_DB`, and increase `RECORDED_KITS` so the table lengths still match.
+4. Add the matching preset in `crates/hs-core/src/params.rs`; every Drum Rack
+   preset becomes a family in the factory SOUNDS library and a preset chip in
+   the device view.
+5. Record the source, author, license and any conversion in
+   `crates/hs-core/assets/audio/ATTRIBUTION.md`, and update the counts in
+   `NOTICE`, `README.md` and `demo-artifacts/README.md`.
+6. Measure the kit's trim with
+   `cargo test -p hs-core --test drum_balance -- --nocapture`. The test prints a
+   `KIT_LEVEL` line per kit with `median_rms_db`; set the trim to
+   `trim + (-14.80 - median_rms_db)` and repeat until the whole-bank spread is
+   at most 0.5 dB.
+
+### A voiced kit
+
+Voiced kits reuse recorded one-shots through the `Voicing` DSP, so they need no
+new audio files or licenses. Add a `Voicing` entry to `VOICED_KITS`, add the
+name to `KIT_NAMES`, add the preset in `params.rs`, then trim it with the same
+balance test. Keep its lane labels tied to the `source` kit.
+
+After either change, run the full gate set above and regenerate the delivery
+artifacts with `cargo run -p hs-core --example render_demo_artifacts`. Commit
+the updated `demo-artifacts/` files with the code change.
+
 ## Reporting bugs and security issues
 
 Use the project's issue tracker for ordinary bugs and feature requests. For

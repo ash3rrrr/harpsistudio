@@ -16,7 +16,7 @@ Harpsistudio factory content. It is kept in the project tree, not in `target/`.
 | `renders/vocal-riddim-vocal-stem.wav` | The same arrangement with only the vocal hook, vocal growl and vocal harmony audible |
 | `projects/Vocal Riddim.harp` | The loadable project for Vocal Riddim; the vocal take is embedded in the JSON |
 | `reports/vocal-riddim.md` | Track roles, arrangement map and export paths for the vocal demo |
-| `renders/drum-library-audition.wav` | One 8-beat pass through all 13 Drum Rack kits, all 16 lanes per kit, 208 mappings and all 155 embedded one-shots |
+| `renders/drum-library-audition.wav` | One 8-beat pass through all 25 Drum Rack kits, all 16 lanes per kit, 400 mappings and all 155 embedded one-shots |
 | `renders/salamander-midi-groove.wav` | House Club drums alongside a Salamander Grand track driven by Chord Generator → Arpeggiator |
 | `reports/render-metrics.tsv` | Exact duration, peak, RMS, DC, clipping count and 20–180 Hz fraction for every render |
 | `reports/delivery-report.md` | Genre evidence and the assertions that produced these files |
@@ -46,7 +46,7 @@ same core functions that the GUI calls:
 ## Auditioning the Drum Rack in the GUI
 
 Load any starter, open **DEVICE** on its Drum Rack, and click a factory preset
-chip or set the **Kit** knob. The 13 kit chips wrap onto multiple rows. The
+chip or set the **Kit** knob. The 25 kit chips wrap onto multiple rows. The
 **PAD MAP** below the knobs lists all 16 lane labels and their MIDI notes. With
 the Drum Rack track selected, use the computer keys `A W S E D F T G Y H U J K`
 to audition; `Z`/`X` change octave. Between the C2, C3 and C4 octave positions
@@ -63,7 +63,7 @@ high tom. The `drum-library-audition.wav` file is the offline equivalent: one
 | EDM | 33.75 s | −0.81 dBFS | −0.000001 | 0 | 0.343 |
 | Rap | 48.00 s | −0.73 dBFS | +0.000524 | 0 | 0.471 |
 | Vocal bass | 5.14 s | −5.80 dBFS | −0.000008 | 0 | 0.426 |
-| Drum library | 56.00 s | −4.75 dBFS | −0.000005 | 0 | 0.436 |
+| Drum library | 104.00 s | −4.75 dBFS | +0.000001 | 0 | 0.426 |
 | Salamander + MIDI | 20.00 s | −0.74 dBFS | −0.000048 | 0 | 0.484 |
 
 Genre checks:
@@ -76,9 +76,8 @@ Genre checks:
   and 0.0516 (drop tail); the drop is 3.7× the build.
 - Rap Flow is 0.348 of the full-mix RMS over its section; its 300–4000 Hz RMS is
   5.67× its 20–180 Hz RMS.
-- The audition render covers the 13 recorded kits × 16 lanes = 208 mappings,
-  reaching 155 of 155 embedded samples. The shipped bank now adds 12 voiced
-  kits for 25 kits and 400 mappings over the same files.
+- The audition render covers all 25 kits × 16 lanes = 400 mappings (13
+  recorded, 12 voiced), reaching 155 of 155 embedded source samples.
 - Salamander + MIDI FX renders cleanly alongside a real House Club drum kit.
 
 ## Regenerate and verify

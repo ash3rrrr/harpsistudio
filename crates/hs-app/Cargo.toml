@@ -4,6 +4,9 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+description = "Native Rust desktop beat workstation GUI for Harpsistudio"
+keywords = ["audio", "music", "daw", "gui", "workstation"]
+categories = ["multimedia::audio", "gui"]
 
 [[bin]]
 name = "harpsistudio"
