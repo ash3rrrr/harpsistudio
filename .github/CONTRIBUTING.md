@@ -12,11 +12,14 @@ Requirements:
 - Rust stable with the MSVC toolchain
 - A working audio output for manual UI work
 
-Build and run:
+Build the desktop app, then launch it:
 
 ```bat
-cargo run --release
+cargo build --release -p hs-app
+target\release\harpsistudio.exe
 ```
+
+`run.bat` wraps `cargo run --release` and checks that Cargo is available.
 
 Run the headless tools without the GUI:
 
@@ -26,7 +29,7 @@ cargo run -p hs-cli -- inspect "demo-artifacts/projects/Vocal Riddim.harp"
 cargo run -p hs-cli -- demo "Midnight House" "target/midnight-house.wav"
 ```
 
-## Before opening a pull request
+## Run the CI gates locally
 
 Run the same checks used by CI:
 
@@ -41,13 +44,22 @@ cargo build --release -p hs-cli
 `rust-toolchain.toml` pins the stable toolchain and installs the `rustfmt` and
 `clippy` components those checks need.
 
-For UI changes, include a short description of what changed and a 1600x980
-screenshot in the pull request. The checked-in screenshots live in
-`screenshots/`; raw capture intermediates are ignored.
+## Pull request expectations
 
-Keep changes focused. A pull request that changes audio behavior should include
-a focused regression test, and a pull request that changes presentation should
-explain why the new layout is better.
+- Keep each pull request focused on one problem; split unrelated refactors.
+- Link the issue it addresses and complete `.github/PULL_REQUEST_TEMPLATE.md`.
+- Run the full gate set above and include the results in the pull request.
+- Include a focused regression test or render evidence for audio, DSP, project
+  format, or engine behavior changes.
+- For UI changes, include a short description and a 1600x980 screenshot. The
+  checked-in screenshots live in `screenshots/`; raw capture intermediates are
+  ignored.
+- For new audio assets, provide the source, license and attribution updates
+  required below. Do not add unlicensed sample packs or proprietary assets.
+- Document any `.harp` compatibility impact and update the README or CHANGELOG
+  when user-facing behavior or counts change.
+
+The PR template repeats this checklist.
 
 ## Code layout
 

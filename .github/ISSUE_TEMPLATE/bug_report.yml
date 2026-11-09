@@ -1,0 +1,92 @@
+name: Bug report
+description: Report a reproducible problem with the desktop app, CLI, or renderer.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Search existing issues first, and do not attach private audio, project files, personal paths, or credentials.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of Harpsistudio is affected?
+      options:
+        - Desktop app
+        - Headless CLI
+        - Rendering / audio output
+        - Project file (.harp)
+        - Build or CI
+        - Documentation
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Release tag, or the short hash from `git rev-parse --short HEAD`.
+      placeholder: 0.1.0 or 6685ecb
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: OS, audio device, and Rust toolchain
+      description: Include the exact Windows version and `rustc --version` output.
+      placeholder: Windows 11 23H2; Rust 1.xx.x stable-x86_64-pc-windows-msvc; WASAPI output
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest sequence that reliably triggers the problem.
+      placeholder: |
+        1. Build with `cargo build --release -p hs-app`
+        2. Launch `target\release\harpsistudio.exe`
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the exact error text and whether the app closed or panicked.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: For audio or project bugs, name the smallest clip, kit, pattern, or `.harp` file that triggers it. Attach a file only if it contains no private material.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Remove personal paths, audio content, device identifiers, and secrets.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I removed private audio, project files, personal paths, and credentials from this report.
+          required: true

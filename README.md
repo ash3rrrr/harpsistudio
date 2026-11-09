@@ -2,43 +2,44 @@
 
 [![CI](https://github.com/ash3rrrr/harpsistudio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ash3rrrr/harpsistudio/actions/workflows/ci.yml)
 
-Harpsistudio is a native beat workstation for Windows, written in Rust. It uses
-an Ableton Live 12-style shell: the browser collapses from the top-left, the
-Session/Arrangement selector sits at the top-right, Clip and Device stack in a
-bottom detail area, and Clip/Device/Mixer live on the bottom-right rail. The
-workflow is keyboard-first, with **13 instruments, 18
-effects and 2 MIDI generators** aimed at dubstep, house, EDM and rap.
+Harpsistudio is a native beat workstation for Windows, built in Rust and
+released under the MIT License. It pairs a keyboard-first Session/Arrangement
+workflow with an embedded, license-audited sample library, real vocal
+processing and a headless renderer. The desktop app and its audio content ship
+together: there is no Electron shell, browser runtime or external sample-pack
+install.
 
-Harpsistudio is **open source under the MIT License**. The code is independent
-and is not affiliated with Ableton AG. The application also ships a headless
-CLI, so the same core can render and inspect projects without the Windows UI.
+It follows Ableton Live's interaction model, not its assets: the browser,
+Session and Arrangement views, clip/device detail area and mixer feel familiar,
+while the DSP, song model and sample bank are original to this project. Import
+a WAV or record a take, and it becomes a real track stored inside the project.
 
 Ableton and Live are trademarks of Ableton AG. They are used here only to
 describe the interaction model; no Ableton artwork or proprietary UI assets are
 included.
 
-The current build adds a **sample-based Drum Rack with 25 real kits and 155
-one-shot samples** (13 recorded kits plus 12 load-time voiced variants), the
-**Salamander Grand Piano** (with a dedicated bass preset), a **Vox Bass** voice
-synth, a sampler-backed **Vocal Take** instrument, a drawbar **Tonewheel
-Organ**, the **Bassify** vocal-bass effect and the vowel-morphing **Formant
-Filter**. Import a WAV or record the microphone, and the take becomes a real
-track that is stored inside the project. Eleven complete factory projects are
-included.
+## Key features
 
-A large factory library is built in: **1,440 playable sounds** (60 instrument
-presets × 24 named characters) and **100 plugin racks** (20 effect-chain
-families × 5 variants). Both are browsable, searchable and loadable from the
-**SOUNDS** tab, and each entry is a complete parameter state rather than a name
-in a list.
-
-The melody side is a **64-pattern tagged library** (8 patterns for each of
-dubstep, house, EDM, techno, rap, melodic bass, trap/hip-hop and ambient),
-written for the sampled and modelled instruments rather than retro chiptune
-timbres. Browse and filter it in **PATS**, audition through the real engine,
-then load any pattern as a track with one click. An **Arpeggiator** and a
-**Chord Generator** turn single notes into melodic parts inside the normal
-device chain.
+- **A full native workstation.** Session and Arrangement views, clip launch
+  with global quantization and follow actions, a piano roll with scale snap, a
+  full mixer, and up to 24 tracks. The arrangement canvas is currently 16 bars.
+- **A deep instrument and effect set.** **13 instruments**, **18 effects** and
+  **2 MIDI generators**, including the drum rack, Salamander Grand Piano, Vox
+  Bass, Vocal Take, Tonewheel Organ, Bassify, Formant Filter, Arpeggiator and
+  Chord Generator.
+- **Real embedded audio.** **25 drum kits** built from **155 one-shot samples**,
+  plus the Salamander Grand Piano samples and a supplied vocal take. No
+  separate sample-pack download is required, and the asset licenses are
+  recorded in [NOTICE](NOTICE) and
+  [crates/hs-core/assets/audio/ATTRIBUTION.md](crates/hs-core/assets/audio/ATTRIBUTION.md).
+- **A large factory library.** **1,440 playable sounds** (60 instrument
+  families × 24 characters), **100 effect racks**, **64 tagged patterns** and
+  **11 complete factory projects**.
+- **One engine, two frontends.** The Windows UI and the headless
+  `harpsistudio-cli` share the same `hs-core` song and offline-render path, so
+  projects, demos and CI exports go through the same audio code.
+- **Open source without hidden audio.** The code is MIT; the embedded recordings
+  keep their original CC0, CC BY or public-domain terms and attribution.
 
 ## Quick start
 
@@ -48,28 +49,41 @@ Requirements:
 - [Rust](https://rustup.rs) stable (edition 2021) with the MSVC toolchain
 - A working system audio output
 
-Run the launcher:
+Build the desktop app with the same command CI uses:
 
 ```bat
-cd harpsistudio
-run.bat
+cargo build --release -p hs-app
 ```
 
-Or build and run directly:
+Launch it:
 
 ```bat
-cargo run --release
+target\release\harpsistudio.exe
 ```
+
+`run.bat` is a convenience wrapper around `cargo run --release`; it also checks
+that Cargo is on `PATH` and pauses on failure. `cargo run --release -p hs-app`
+builds and launches in one step.
 
 The first release build takes a couple of minutes; later launches start
-immediately. A debug build also works but release is recommended while
-producing.
+immediately. A debug build also works, but release is recommended while
+producing. The desktop UI targets Windows 10/11. The `hs-core` library and
+`hs-cli` also build and test on Ubuntu, which is covered by CI.
 
 ## Headless CLI
 
 The `hs-cli` crate is a small, GUI-free frontend to the same song and render
 path used by **Mixdown**. It is useful for CI, batch exports, scripts and
 contributing without a Windows audio device.
+
+Build the CLI with the same command CI uses:
+
+```bat
+cargo build --release -p hs-cli
+```
+
+The binary is `target\release\harpsistudio-cli.exe`. During development, run it
+through Cargo:
 
 ```bat
 cargo run -p hs-cli -- list-demos
@@ -105,7 +119,7 @@ so saving and loading never depends on the original file path.
 Each starter is an ordinary project. Change the kit, replace devices, edit notes
 or save your own version. **PATS** holds the pattern library; **SOUNDS** opens
 the 1,440-sound library, the 100 plugin racks and the raw device list; **DEMOS**
-has all ten factory projects; **FILES** handles save, mixdown and recent
+has all eleven factory projects; **FILES** handles save, mixdown and recent
 projects.
 
 ## Patterns and MIDI generators
@@ -511,33 +525,40 @@ cargo run -p hs-core --example render_demo_artifacts
 
 ```text
 harpsistudio/
+├─ .github/
+│  ├─ workflows/ci.yml          # Windows + Ubuntu gates
+│  ├─ ISSUE_TEMPLATE/           # bug and feature issue forms
+│  ├─ PULL_REQUEST_TEMPLATE.md
+│  ├─ CONTRIBUTING.md           # development and audio-contribution rules
+│  └─ CODE_OF_CONDUCT.md
 ├─ crates/
-│  ├─ hs-core/        # DSP, song model, engine, presets, project I/O
-│  │  ├─ src/dsp.rs       # oscillators, filters, envelopes, delays
-│  │  ├─ src/devices.rs   # instrument voices and effect processing
-│  │  ├─ src/engine.rs    # realtime engine and offline rendering
-│  │  ├─ src/audio_take.rs # imported takes, WAV loading and PCM16 project data
-│  │  ├─ src/params.rs    # 33-device catalogue, parameter definitions
-│  │  ├─ src/patterns.rs  # tagged 64-pattern library parser and model
-│  │  ├─ src/midi_fx.rs   # arpeggiator and chord-generator note transforms
-│  │  ├─ src/samples.rs   # embedded drum/piano bank and WAV decoder
-│  │  ├─ src/presets.rs   # factory demos and default patterns
-│  │  ├─ assets/patterns.tsv # shipped pattern rows (name, tags, notes)
-│  │  ├─ src/project.rs   # .harp save/load and WAV export
-│  │  ├─ src/song.rs      # Song/Track/Clip/Note model
+│  ├─ hs-core/                  # DSP, song model, engine, presets, project I/O
+│  │  ├─ src/dsp.rs             # oscillators, filters, envelopes, delays
+│  │  ├─ src/devices.rs         # instrument voices and effect processing
+│  │  ├─ src/engine.rs          # realtime engine and offline rendering
+│  │  ├─ src/audio_take.rs      # imported takes, WAV loading and PCM16 project data
+│  │  ├─ src/params.rs          # 33-device catalogue, parameter definitions
+│  │  ├─ src/patterns.rs        # tagged 64-pattern library parser and model
+│  │  ├─ src/midi_fx.rs         # arpeggiator and chord-generator note transforms
+│  │  ├─ src/samples.rs         # embedded drum/piano bank and WAV decoder
+│  │  ├─ src/presets.rs         # factory demos and default patterns
+│  │  ├─ assets/patterns.tsv    # shipped pattern rows (name, tags, notes)
+│  │  ├─ src/project.rs         # .harp save/load and WAV export
+│  │  ├─ src/song.rs            # Song/Track/Clip/Note model
 │  │  └─ examples/render_demo_artifacts.rs # reproducible delivery proof
-│  ├─ hs-app/         # eframe/egui interface and CPAL audio device
-│     ├─ src/app.rs       # shell, transport, browser, actions
-│     ├─ src/view_*.rs    # session, arrangement, mixer, device, piano roll
-│     ├─ src/widgets.rs   # knobs, faders, meters, chips, note previews
-│     ├─ src/audio.rs     # CPAL stream and engine callback│     └─ src/midi.rs     # MIDI input enumeration and note/sustain forwarding
-│  └─ hs-cli/         # headless render, inspect and demo CLI
-├─ demo-artifacts/    # checked-in renders, reports and supplied vocal source
-├─ LICENSE           # MIT for the source code
-├─ NOTICE            # asset licenses and trademark disclaimer
-├─ CONTRIBUTING.md   # development and audio-contribution rules
-├─ SECURITY.md       # responsible disclosure
-├─ CODE_OF_CONDUCT.md
+│  ├─ hs-app/                   # eframe/egui interface and CPAL audio device
+│  │  ├─ src/app.rs             # shell, transport, browser, actions
+│  │  ├─ src/view_*.rs          # session, arrangement, mixer, device, piano roll
+│  │  ├─ src/widgets.rs         # knobs, faders, meters, chips, note previews
+│  │  ├─ src/audio.rs           # CPAL stream and engine callback
+│  │  └─ src/midi.rs            # MIDI input enumeration and note/sustain forwarding
+│  └─ hs-cli/                   # headless render, inspect and demo CLI
+├─ demo-artifacts/              # checked-in renders, reports and supplied vocal source
+├─ screenshots/                 # README UI captures
+├─ LICENSE                      # MIT for the source code
+├─ NOTICE                       # asset licenses and trademark disclaimer
+├─ SECURITY.md                  # responsible disclosure
+├─ CHANGELOG.md
 ├─ run.bat
 └─ README.md
 ```
@@ -600,21 +621,38 @@ licenses and attribution. See [NOTICE](NOTICE) and
 [crates/hs-core/assets/audio/ATTRIBUTION.md](crates/hs-core/assets/audio/ATTRIBUTION.md)
 before redistributing the application or rendered audio.
 
-Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the build
+Contributions are welcome. [CONTRIBUTING.md](.github/CONTRIBUTING.md) covers the build
 gates, code layout, screenshot expectations and the rules for legally clean
 audio assets. [SECURITY.md](SECURITY.md) explains private vulnerability
-reporting, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) sets the community
+reporting, and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) sets the community
 expectations.
 
-### Get involved
+### Roadmap and good first issues
 
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md), including the exact CI gate set and
-   the guide for adding a recorded or voiced drum kit.
-2. Fork the repository, create a topic branch, and run the **Development**
-   commands above before opening a pull request.
-3. Good first contributions are focused bug fixes, regression tests,
-   documentation, factory patterns, and CC0/public-domain sample content with
-   complete attribution.
+These are verified gaps in the current tree, not a generic wish list:
+
+1. **Good first issue — run the CLI in CI.** The workflow builds `hs-cli` but
+   never executes it. Add `list-demos` and `inspect` smoke checks to the Ubuntu
+   job so argument-parsing and project-loading regressions fail fast.
+2. **Good first issue — version `.harp` files.** Projects are currently
+   pretty-printed `Song` JSON with no format field
+   (`crates/hs-core/src/project.rs`). Add a schema version and a clear
+   migration/error path for older or newer files.
+3. **Good first issue — exercise Linux desktop startup.** CI builds `hs-app` on
+   Ubuntu, but the UI is only manually checked on Windows. Document a tested
+   distro/audio stack and add a headless startup smoke test.
+4. **Larger project — MIDI mapping and multiple ports.** Only the first input
+   port is opened, and only note, velocity, sustain (CC64) and all-notes-off are
+   handled (`crates/hs-app/src/midi.rs`). Add port selection and CC learn.
+5. **Larger project — longer arrangements and richer import.** Arrangement
+   editing is a 16-bar canvas, and audio import is WAV-only with eight-second
+   mono takes. Extend both deliberately with regression coverage.
+
+Read [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) for the exact gate set,
+the audio-asset rules and the drum-kit workflow. Fork the repository, create a
+topic branch, run the **Development** commands above, and open a pull request
+using the PR template. For any audio contribution, include complete license and
+attribution details.
 
 ## Limitations
 

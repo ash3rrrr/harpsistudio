@@ -17,6 +17,9 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Changed
 
+- Reorganized the contributor guides under `.github/`, added bug, feature and
+  pull-request templates, and expanded the README with verified build and CLI
+  instructions plus a gap-based roadmap.
 - Regenerated the checked-in delivery artifacts; the drum-library audition now
   covers all 25 kits (400 mappings) and the generated reports use the current
   counts and bar lengths.

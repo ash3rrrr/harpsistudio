@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security policy
+    url: https://github.com/ash3rrrr/harpsistudio/security/policy
+    about: Report vulnerabilities privately as described in SECURITY.md; do not open a public issue.
