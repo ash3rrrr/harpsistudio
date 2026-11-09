@@ -18,6 +18,18 @@ Ableton and Live are trademarks of Ableton AG. They are used here only to
 describe the interaction model; no Ableton artwork or proprietary UI assets are
 included.
 
+## See it
+
+![Harpsistudio Session view with the browser open](screenshots/01_session_browser_open.png)
+
+| Arrangement | Mixer |
+| --- | --- |
+| ![Harpsistudio Arrangement view](screenshots/08_arrangement_browser_open.png) | ![Harpsistudio Mixer view](screenshots/05_mixer.png) |
+
+The captures are generated from the release build; `screenshots/render.ps1`
+refreshes them. See [Build and run from source](#build-and-run-from-source) for
+the commands.
+
 ## Key features
 
 - **A full native workstation.** Session and Arrangement views, clip launch
@@ -51,7 +63,7 @@ included.
 - **Open source without hidden audio.** The code is MIT; the embedded recordings
   keep their original CC0, CC BY or public-domain terms and attribution.
 
-## Quick start
+## Build and run from source
 
 Requirements:
 
@@ -59,7 +71,9 @@ Requirements:
 - [Rust](https://rustup.rs) stable (edition 2021) with the MSVC toolchain
 - A working system audio output
 
-Build the desktop app with the same command CI uses:
+Build the desktop app from source with Cargo; after the build there is no
+installer, Node runtime or external sample-pack download. Use the same command
+CI uses:
 
 ```bat
 cargo build --release -p hs-app
@@ -513,8 +527,11 @@ Projects, mixdowns and MIDI exports live in:
 %USERPROFILE%\Documents\Harpsistudio
 ```
 
-- **Save** writes a readable `.harp` JSON project named after the song. Imported
-  vocal takes are embedded as base64 PCM16, so the project is self-contained.
+- **Save** writes a readable `.harp` JSON project named after the song. It
+  carries a top-level `format_version`; unversioned projects from earlier builds
+  still open, while a project from a newer schema fails with a clear update
+  message instead of being mis-parsed. Imported vocal takes are embedded as
+  base64 PCM16, so the project is self-contained.
 - **Mixdown** renders the arrangement (or the first session clip on each track
   when there is no arrangement) to a 16-bit stereo 48 kHz WAV. An imported
   vocal adds an arrangement clip automatically, so it is included in Mixdown.
@@ -574,7 +591,7 @@ harpsistudio/
 │  │  ├─ assets/patterns.tsv    # shipped pattern rows (name, tags, notes)
 │  │  ├─ src/midi_export.rs      # format 1 Standard MIDI File writer
 │  │  ├─ src/midi_import.rs      # format 0/1 Standard MIDI File reader
-│  │  ├─ src/project.rs         # .harp save/load, WAV and MIDI export
+│  │  ├─ src/project.rs         # versioned .harp save/load, WAV and MIDI export
 │  │  ├─ src/song.rs            # Song/Track/Clip/Note model
 │  │  ├─ src/undo.rs            # bounded UI-thread snapshot undo/redo
 │  │  └─ examples/render_demo_artifacts.rs # reproducible delivery proof
@@ -586,7 +603,7 @@ harpsistudio/
 │  │  └─ src/midi.rs            # MIDI input enumeration and note/sustain forwarding
 │  └─ hs-cli/                   # headless render, inspect and demo CLI
 ├─ demo-artifacts/              # checked-in renders, reports and supplied vocal source
-├─ screenshots/                 # README UI captures
+├─ screenshots/                 # README UI captures and render.ps1
 ├─ LICENSE                      # MIT for the source code
 ├─ NOTICE                       # asset licenses and trademark disclaimer
 ├─ SECURITY.md                  # responsible disclosure

@@ -7,6 +7,10 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Added
 
+- **Versioned `.harp` projects.** Saves now include a top-level
+  `format_version: 1` field. Unversioned projects written by earlier builds
+  still load unchanged, while a project from a newer schema is rejected with an
+  explicit update message instead of being mis-parsed.
 - **Bounded undo/redo** across the editor. Notes, instruments, effects and
   parameters, mixer moves, arrangement/track structure and tempo become one
   undo step per completed gesture. The history retains at most 64 snapshots,
@@ -36,6 +40,9 @@ All notable changes to Harpsistudio are documented here. The project follows
   snapshotted depth bound, gesture batching, both redo chords, mixed-edit round
   trips and live-engine playback. Normalized three MIDI importer test
   assertions so the strict Clippy gate passes.
+- README now shows current screenshots of the Session, Arrangement and Mixer
+  views and labels the build-from-source section explicitly. The checked-in
+  captures are regenerated from the release build.
 - CI now smoke-tests `list-demos`, `inspect`, MIDI export and MIDI import
   through the release `harpsistudio-cli` binary on Ubuntu.
 - Added MIDI import round-trip coverage for the **Vocal Riddim** factory demo,

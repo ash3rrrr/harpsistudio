@@ -1,10 +1,54 @@
 //! Project files (.harp) and offline WAV export.
+//!
+//! `.harp` files are human-readable JSON with a top-level `format_version`.
+//! Files without that field predate versioning and are still accepted.
 
 use crate::engine::Engine;
 use crate::song::Song;
+use serde::Serialize;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+
+/// Current `.harp` schema version. A missing version means a legacy document.
+pub const PROJECT_FORMAT_VERSION: u32 = 1;
+
+#[derive(Serialize)]
+struct ProjectDocument<'a> {
+    format_version: u32,
+    #[serde(flatten)]
+    song: &'a Song,
+}
+
+fn encode_song(song: &Song) -> Result<String, String> {
+    serde_json::to_string_pretty(&ProjectDocument {
+        format_version: PROJECT_FORMAT_VERSION,
+        song,
+    })
+    .map_err(|e| e.to_string())
+}
+
+fn decode_song(data: &str) -> Result<Song, String> {
+    let value: serde_json::Value =
+        serde_json::from_str(data).map_err(|e| format!("invalid project JSON: {e}"))?;
+    if let Some(field) = value.get("format_version") {
+        let version = field.as_u64().ok_or_else(|| {
+            "invalid project format_version: expected a positive integer".to_string()
+        })?;
+        if version == 0 {
+            return Err(
+                "invalid project format_version 0; expected version 1 or later".to_string(),
+            );
+        }
+        if version > u64::from(PROJECT_FORMAT_VERSION) {
+            return Err(format!(
+                "project format version {version} is newer than supported version \
+                 {PROJECT_FORMAT_VERSION}; update Harpsistudio to open this project"
+            ));
+        }
+    }
+    serde_json::from_value(value).map_err(|e| format!("invalid project data: {e}"))
+}
 
 pub fn projects_dir() -> PathBuf {
     let home = std::env::var("USERPROFILE")
@@ -49,14 +93,14 @@ pub fn save_song_as(song: &Song, name: &str) -> Result<PathBuf, String> {
 /// Serialize a project to an explicit path. `save_song` uses this after choosing
 /// the Documents path; tests use it to write isolated project fixtures.
 pub fn save_song_to(song: &Song, path: &Path) -> Result<(), String> {
-    let json = serde_json::to_string_pretty(song).map_err(|e| e.to_string())?;
+    let json = encode_song(song)?;
     fs::write(path, json).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 pub fn load_song(path: &Path) -> Result<Song, String> {
     let data = fs::read_to_string(path).map_err(|e| e.to_string())?;
-    let mut song: Song = serde_json::from_str(&data).map_err(|e| e.to_string())?;
+    let mut song = decode_song(&data)?;
     song.normalize();
     if song.return_fx.kind != crate::params::DeviceKind::Reverb {
         song.return_fx = crate::params::Device::new(crate::params::DeviceKind::Reverb);
@@ -169,4 +213,96 @@ pub fn export_midi(song: &Song) -> Result<PathBuf, String> {
 /// Export arrangement clips to an explicit Standard MIDI File path.
 pub fn export_midi_to(song: &Song, path: &Path) -> Result<(), String> {
     crate::midi_export::write(song, path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::params::DeviceKind;
+    use crate::song::{Clip, Note};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn sample_song() -> Song {
+        let mut song = Song::empty("Format Version Test", 123.0);
+        let track = song.add_track(DeviceKind::DrumRack);
+        let mut clip = Clip::new("Beat", 0, 0.0, 4.0);
+        clip.notes.push(Note::new(0.0, 0.5, 36, 0.9));
+        song.tracks[track].clips.push(clip);
+        song.normalize();
+        song
+    }
+
+    fn temp_path(tag: &str) -> PathBuf {
+        let stamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock is after the Unix epoch")
+            .as_nanos();
+        std::env::temp_dir().join(format!(
+            "harpsistudio-{tag}-{}-{stamp}.harp",
+            std::process::id()
+        ))
+    }
+
+    #[test]
+    fn legacy_unversioned_project_loads_identically_to_versioned() {
+        let song = sample_song();
+        let legacy_path = temp_path("legacy");
+        let versioned_path = temp_path("versioned");
+        fs::write(
+            &legacy_path,
+            serde_json::to_string_pretty(&song).expect("legacy project serializes"),
+        )
+        .expect("legacy project writes");
+        save_song_to(&song, &versioned_path).expect("versioned project writes");
+
+        let legacy_json: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&legacy_path).expect("legacy project reads"))
+                .expect("legacy project is valid JSON");
+        let versioned_json: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(&versioned_path).expect("versioned project reads"),
+        )
+        .expect("versioned project is valid JSON");
+        assert!(legacy_json.get("format_version").is_none());
+        assert_eq!(
+            versioned_json
+                .get("format_version")
+                .and_then(serde_json::Value::as_u64),
+            Some(u64::from(PROJECT_FORMAT_VERSION))
+        );
+
+        let loaded_legacy = load_song(&legacy_path).expect("legacy project loads");
+        let loaded_versioned = load_song(&versioned_path).expect("versioned project loads");
+        assert_eq!(loaded_legacy, loaded_versioned);
+        assert_eq!(loaded_legacy, song);
+
+        let _ = fs::remove_file(legacy_path);
+        let _ = fs::remove_file(versioned_path);
+    }
+
+    #[test]
+    fn project_from_newer_format_version_is_rejected_clearly() {
+        let song = sample_song();
+        let path = temp_path("future");
+        save_song_to(&song, &path).expect("versioned project writes");
+        let mut document: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&path).expect("project reads"))
+                .expect("project is valid JSON");
+        let future = PROJECT_FORMAT_VERSION + 1;
+        document["format_version"] = serde_json::json!(future);
+        fs::write(
+            &path,
+            serde_json::to_string_pretty(&document).expect("future project serializes"),
+        )
+        .expect("future project writes");
+
+        let error = load_song(&path).expect_err("a future format version must not load");
+        assert!(
+            error.contains(&format!("format version {future}")),
+            "{error}"
+        );
+        assert!(error.contains("newer than supported version"), "{error}");
+        assert!(error.contains("update Harpsistudio"), "{error}");
+
+        let _ = fs::remove_file(path);
+    }
 }
