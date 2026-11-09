@@ -115,7 +115,7 @@ fn every_family_representative_survives_project_save_and_load() {
     }
 
     let _ = std::fs::remove_file(&path);
-    assert_eq!(sound_families.len(), 48);
+    assert_eq!(sound_families.len(), 60);
     assert_eq!(plugin_families.len(), 20);
 }
 

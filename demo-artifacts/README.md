@@ -76,8 +76,9 @@ Genre checks:
   and 0.0516 (drop tail); the drop is 3.7× the build.
 - Rap Flow is 0.348 of the full-mix RMS over its section; its 300–4000 Hz RMS is
   5.67× its 20–180 Hz RMS.
-- The drum bank is 13 kits × 16 lanes = 208 mappings, reaching 155 of 155
-  embedded samples.
+- The audition render covers the 13 recorded kits × 16 lanes = 208 mappings,
+  reaching 155 of 155 embedded samples. The shipped bank now adds 12 voiced
+  kits for 25 kits and 400 mappings over the same files.
 - Salamander + MIDI FX renders cleanly alongside a real House Club drum kit.
 
 ## Regenerate and verify

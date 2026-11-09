@@ -1,6 +1,6 @@
 # Audio sample credits
 
-Harpsistudio embeds its **13 drum kits / 155 one-shot WAV files** and the
+Harpsistudio embeds its **25 drum kits / 155 one-shot WAV files** and the
 **26-file Salamander Grand Piano** in the `hs-core` binary. The drum one-shots
 and piano are converted to mono 44.1 kHz, 16-bit PCM WAV for predictable CPU
 use and offline playback. The musical performances and recordings remain the
@@ -27,6 +27,12 @@ work of their original creators.
 The library contains 155 files: 43 from the original six-kit release and 112
 new, unique one-shots added in the expanded library. All 155 are reachable from
 a kit lane.
+
+Kits 14-25 are **voiced at load time** from the recordings above rather than
+shipped as extra files: the source one-shots are resampled for pitch, low-pass
+filtered, saturated, optionally bit-reduced, tail-gated and peak-normalized,
+then gain-trimmed to match the recorded kits. No new performance or recording
+is involved, so the licenses above continue to cover them.
 
 ## Pearl Master Studio drums
 
@@ -306,13 +312,15 @@ not mask a hot sample.
 | Mallet Lab | -12.63 | -2.2 | -14.83 | -10.01 |
 | TR-808 Studio | -13.58 | -1.2 | -14.78 | -9.77 |
 
-The 13-kit spread fell from 5.08 dB to 0.25 dB against a -14.80 dBFS target.
-Across 208 lane probes covering all 155 unique files, the lowest 50 ms RMS was
--26.38 dBFS, the highest pre-master peak was 0.537 (-5.40 dBFS), and the
-largest DC offset was 0.001191. The trims are stored in `samples::KIT_TRIM_DB`
+The 13 recorded kits were balanced from a 5.08 dB spread to 0.25 dB against a
+-14.80 dBFS target; after the 12 voiced kits were trimmed to match, the full
+25-kit spread is 0.31 dB.
+Across 400 lane probes covering all 155 unique files, the lowest 50 ms RMS was
+-26.40 dBFS, the highest pre-master peak was 0.580 (-4.73 dBFS), and the
+largest DC offset was 0.000211. The trims are stored in `samples::KIT_TRIM_DB`
 and applied by `samples::drum_kit_gain`. A second pass through the default
-master compressor and limiter reached a maximum peak of 0.642
-(-3.85 dBFS), below the 0.92 limiter threshold, so the limiter stays unengaged.
+master compressor and limiter reached a maximum peak of 0.696
+(-3.14 dBFS), below the 0.92 limiter threshold, so the limiter stays unengaged.
 
 ## Conversion and verification notes
 
@@ -323,14 +331,14 @@ master compressor and limiter reached a maximum peak of 0.642
   Salamander kit, 0.95 for the hard Salamander kit, and 0.90 for the other new
   kits. No EQ, compression, reverb, pitch-shifting, layering or synthesis was
   baked into these files.
-- The 13 kit mappings each have 16 lanes: kick, snare, clap, closed hat, open
+- All 25 kit mappings have 16 lanes: kick, snare, clap, closed hat, open
   hat, low tom, crash, rim, 808, percussion, shaker, ride, cowbell, snap, floor
   tom and high tom. Lanes that are not natural kit pieces use musically related
   percussion or mallet notes and are labeled in the device view.
-- Verified at build time by automated tests: 13 kit names, 155 embedded WAVs,
-  13 x 16 mappings, every lane decodes, every individual one-shot renders
+- Verified at build time by automated tests: 25 kit names, 155 embedded WAVs,
+  13 x 16 recorded plus 12 x 16 voiced mappings (400 total), every lane decodes, every individual one-shot renders
   finite/audible/non-clipping through the sampler and default master path
-  (208 probes, 155 files), the 13 kit medians stay within 0.25 dB, and all ten
+  (400 probes, 155 files), the 25 kit medians stay within 0.31 dB, and all ten
   factory demos render.
 - Per-file source/destination and gain records used for the conversion are in
   the build workspace at `target/sample-src/drum-expansion.tsv` and

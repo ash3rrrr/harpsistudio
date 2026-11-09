@@ -3918,7 +3918,7 @@ mod browser_tests {
         assert_eq!(app.browser, BrowserTab::Sounds);
         assert_eq!(app.library_mode, LibraryMode::Sounds);
         assert_eq!(app.listed_rows().len(), sounds::count());
-        assert_eq!(app.listed_rows().len(), 1_152);
+        assert_eq!(app.listed_rows().len(), 1_440);
 
         // Each mode lists its own rows.
         click_at(&ctx, &mut app, Pos2::new(125.0, 102.5));

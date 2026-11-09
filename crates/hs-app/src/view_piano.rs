@@ -114,7 +114,11 @@ pub fn show(app: &mut HarpsiApp, ui: &mut Ui, rect: Rect) {
         Some(track) => {
             let drum = track.instrument.kind == DeviceKind::DrumRack;
             let kit = if drum {
-                track.instrument.p(8).round().clamp(0.0, 12.0) as usize
+                track
+                    .instrument
+                    .p(8)
+                    .round()
+                    .clamp(0.0, (DRUM_KIT_NAMES.len() - 1) as f32) as usize
             } else {
                 0
             };

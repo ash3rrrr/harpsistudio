@@ -408,7 +408,7 @@ pub fn family_count() -> usize {
 }
 
 fn build() -> Vec<SoundPreset> {
-    let mut out = Vec::with_capacity(48 * VARIATION_COUNT);
+    let mut out = Vec::with_capacity(60 * VARIATION_COUNT);
     for kind in DeviceKind::ALL {
         // Vocal Take needs a recorded take, so it is not a playable factory
         // sound. Every other instrument renders on its own.
@@ -503,7 +503,7 @@ mod tests {
     fn library_has_over_a_thousand_sounds() {
         assert!(count() >= 1000, "only {} sounds", count());
         assert_eq!(count(), family_count() * VARIATION_COUNT);
-        assert_eq!(family_count(), 48);
+        assert_eq!(family_count(), 60);
         assert_eq!(VARIATION_COUNT, 24);
     }
 
@@ -589,7 +589,7 @@ mod tests {
                 .or_default()
                 .insert(sound.values.iter().map(|v| v.to_bits()).collect());
         }
-        assert_eq!(families.len(), 48);
+        assert_eq!(families.len(), 60);
         for (key, variants) in families {
             assert_eq!(variants.len(), VARIATION_COUNT, "{key:?} collided");
         }

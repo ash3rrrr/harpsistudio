@@ -409,7 +409,7 @@ fn main() {
     )
     .unwrap();
 
-    // The shipped drum machine: 13 kits x 16 lanes, one hit for every mapping,
+    // The shipped drum machine: 25 kits x 16 lanes, one hit for every mapping,
     // rendered through the same Mixdown writer. The report below proves all 155
     // embedded samples are reachable.
     let mut drum_song = Song::empty("Drum Library Audition", 120.0);
@@ -461,7 +461,7 @@ fn main() {
             .unwrap();
         }
     }
-    assert_eq!(drum_kit_count(), 13);
+    assert_eq!(drum_kit_count(), 25);
     assert_eq!(drum_sample_count(), 155);
     assert_eq!(
         seen.len(),

@@ -12,7 +12,7 @@ use hs_core::samples::{drum_kit_count, drum_lane_label, drum_sample_count};
 fn tip(kind: DeviceKind) -> &'static str {
     match kind {
         DeviceKind::DrumRack => {
-            "Thirteen real sample kits, sixteen voices: acoustic, world, orchestral, mallet and TR-808. Pick a Kit, set Tune/Decay, and play the pad map below."
+            "Twenty-five drum kits, sixteen voices each: thirteen recorded kits plus twelve load-time voiced variants. Pick a Kit, set Tune/Decay, and play the pad map below."
         }
         DeviceKind::SubBass => "Pure low end. Raise Drive for harmonics the club can feel, Glide for slides.",
         DeviceKind::ReeseBass => "Detuned saw stack with a moving filter — the sound of dark DnB and techno.",
@@ -525,7 +525,11 @@ fn show_impl(app: &mut HarpsiApp, ui: &mut Ui, rect: Rect, compact: bool) {
 
         // Drum map
         if is_inst && kind == DeviceKind::DrumRack && !compact {
-            let kit = app.song.tracks[ti].instrument.p(8).round().clamp(0.0, 12.0) as usize;
+            let kit = app.song.tracks[ti]
+                .instrument
+                .p(8)
+                .round()
+                .clamp(0.0, (drum_kit_count() - 1) as f32) as usize;
             let param_cols = ((right.width() / 88.0).floor() as usize).max(2);
             let param_rows = kind.defs().len().div_ceil(param_cols);
             let map_y = (right.top() + 274.0).max(knob_top + param_rows as f32 * 86.0 + 8.0);

@@ -15,8 +15,8 @@ Ableton and Live are trademarks of Ableton AG. They are used here only to
 describe the interaction model; no Ableton artwork or proprietary UI assets are
 included.
 
-The current build adds a **sample-based Drum Rack with 13 real kits and 155
-one-shot samples**, the
+The current build adds a **sample-based Drum Rack with 25 real kits and 155
+one-shot samples** (13 recorded kits plus 12 load-time voiced variants), the
 **Salamander Grand Piano** (with a dedicated bass preset), a **Vox Bass** voice
 synth, a sampler-backed **Vocal Take** instrument, a drawbar **Tonewheel
 Organ**, the **Bassify** vocal-bass effect and the vowel-morphing **Formant
@@ -24,7 +24,7 @@ Filter**. Import a WAV or record the microphone, and the take becomes a real
 track that is stored inside the project. Eleven complete factory projects are
 included.
 
-A large factory library is built in: **1,152 playable sounds** (48 instrument
+A large factory library is built in: **1,440 playable sounds** (60 instrument
 presets × 24 named characters) and **100 plugin racks** (20 effect-chain
 families × 5 variants). Both are browsable, searchable and loadable from the
 **SOUNDS** tab, and each entry is a complete parameter state rather than a name
@@ -102,7 +102,7 @@ so saving and loading never depends on the original file path.
 
 Each starter is an ordinary project. Change the kit, replace devices, edit notes
 or save your own version. **PATS** holds the pattern library; **SOUNDS** opens
-the 1,152-sound library, the 100 plugin racks and the raw device list; **DEMOS**
+the 1,440-sound library, the 100 plugin racks and the raw device list; **DEMOS**
 has all ten factory projects; **FILES** handles save, mixdown and recent
 projects.
 
@@ -150,12 +150,12 @@ before the instrument. Chain them (chords → arpeggio) for instant melodic part
 
 | Mode | What it does |
 | --- | --- |
-| **SOUNDS** | **1,152 presets** generated from 48 factory instrument presets across the 12 playable instruments, each shaped by 24 named characters (Deep, Bright, Warm, Wide, Tight, Gritty, Vintage, Plucked, Lush, Punchy and more). Filter by Drums, Bass, Lead, Pluck, Keys, Pad or FX; search by sound, family or instrument; then load the selection onto the selected track. Loading replaces that track's instrument and keeps its clips and effect chain. |
+| **SOUNDS** | **1,440 presets** generated from 60 factory instrument presets across the 12 playable instruments, each shaped by 24 named characters (Deep, Bright, Warm, Wide, Tight, Gritty, Vintage, Plucked, Lush, Punchy and more). Filter by Drums, Bass, Lead, Pluck, Keys, Pad or FX; search by sound, family or instrument; then load the selection onto the selected track. Loading replaces that track's instrument and keeps its clips and effect chain. |
 | **PLUGINS** | **100 named effect racks** across Dynamics, Drums, Vocal, Bass, Saturation, Space, Modulation, Filter, Creative and Mastering. Twenty families — Bus Glue, Drum Punch, Drum Room, Vocal Focus, Vocal Air, Bass Weight, Sub Control, Growl Stack, Riddim Wub, Trance Gate, Space Echo, Hall Bloom, Tape Warmth, Lo-Fi Dust, Filter Motion, Stereo Bloom, Pump Machine, Master Polish, Transient Sculpt and Formant Dream — each ship as Subtle, Classic, Heavy, Wide and Vintage. Inserting a rack appends its complete chain to the selected track's effects, where every device can be edited, reordered, bypassed or removed. |
 | **DEVICES** | The original raw instrument/effect list and the new-drum-track button. |
 
 Every sound is validated against its instrument's parameter ranges and keeps
-enum and integer switches on real positions. The tests load all 1,152 sounds,
+enum and integer switches on real positions. The tests load all 1,440 sounds,
 insert all 100 racks, and render a library sound through a library rack with
 the real song engine. The quota test requires at least 1,000 sounds and at
 least 100 plugins. A save/load round-trip test covers one representative from
@@ -183,7 +183,7 @@ Mixer replaces the workspace at full width while details remain loaded.
 | Area | What it does |
 | --- | --- |
 | Top bar | Browser toggle, play/stop, rewind, loop, tempo, global launch quantization, position, project name, Save, Mixdown, CPU and master meter |
-| Browser | Starters, 64 patterns, 1,152 sounds, 100 plugin racks, all 33 devices, factory demos and project files; **BROWSER** collapses it |
+| Browser | Starters, 64 patterns, 1,440 sounds, 100 plugin racks, all 33 devices, factory demos and project files; **BROWSER** collapses it |
 | Main workspace | `1 SESSION` and `2 ARRANGEMENT`, with the selector at the top-right; **Tab** swaps them |
 | Detail area | `3 CLIP` and `4 DEVICE` toggle along the bottom and can be open together, side by side |
 | Mixer | `5 MIXER` on the bottom-right rail takes the full workspace for channel strips, return and master |
@@ -268,7 +268,7 @@ Mixer replaces the workspace at full width while details remain loaded.
 | Device | Character |
 | --- | --- |
 | **Vocal Take** | A sampler-backed lane for a real vocal. Load a WAV or record the mic; the take is stored inside the project. Put **Bassify** and **Wobble** after it for a talking dubstep bass. |
-| **Drum Rack** | Thirteen real drum kits with 16 lanes each: acoustic, house, trap, dubstep, boom-bap, bounce, three Salamander layers, world and orchestral percussion, mallets and TR-808. Tune, decay, punch, snap, tone and drive are applied to the samples. All 13 preset chips wrap onto multiple rows, so every kit remains selectable. |
+| **Drum Rack** | Twenty-five drum kits with 16 lanes each: thirteen recorded kits (acoustic, house, trap, dubstep, boom-bap, bounce, three Salamander layers, world and orchestral percussion, mallets, TR-808) plus twelve variants voiced from those same samples at load time. Tune, decay, punch, snap, tone and drive are applied to the samples. All 25 preset chips wrap onto multiple rows, so every kit remains selectable. |
 | **Salamander Grand** | Real Salamander Grand Piano samples, 13 roots × soft/hard layers, with tone, release, detune, octave, velocity sensitivity and width. The **Salamander Bass** preset makes it a warm sample bass. |
 | **Vox Bass** | A vocal-formant synth bass: vowel shapes, sub, growl, drive and tempo-free wobble. It is a playable vocal-bass source when you do not have a recording. |
 | Sub Bass | Pure low end with drive, glide and envelope control. |
@@ -319,23 +319,26 @@ The new processors fill specific production roles:
 
 All audio is embedded, so kits and piano work offline with no import dialog:
 
-- **155 drum one-shots** across **13 kits**, normalized to mono 44.1 kHz
+- **155 drum one-shots** across **25 kits**, normalized to mono 44.1 kHz
   16-bit WAV. The original six kits are joined by Salamander Studio, Salamander
   Hard, Salamander Soft, World Percussion, Orchestral Percussion, Mallet Lab
-  and TR-808 Studio.
+  and TR-808 Studio. Twelve more kits are voiced from those recordings at load
+  time (pitch, filtering, saturation, bit reduction and tail shaping), so no new
+  audio files or sample licenses are added.
 - **Measured kit balance:** one gain-only trim per kit is applied after the
   Drum Rack drive stage. A 48 kHz whole-kit probe aligned each kit's median
-  50 ms RMS to −14.80 dBFS, tightening the spread from 5.08 dB to 0.25 dB;
-  the highest post-trim pre-master peak was −5.40 dBFS (−3.85 dBFS through
-  the default master path). No WAV, EQ, compression
+  50 ms RMS to −14.80 dBFS; the 25-kit spread is 0.31 dB (the 13 recorded kits
+  span 0.25 dB and the voiced kits were trimmed to sit inside it). The highest
+  post-trim pre-master peak was −4.73 dBFS (−3.14 dBFS through the default
+  master path). No WAV, EQ, compression
   or trigger timing was changed. Trims (dB): Acoustic +0.9, House +0.9,
   Trap 808 0.0, Dubstep −0.3, Boom Bap +2.1, Bounce +0.1, Salamander Studio
   −0.7, Salamander Hard −1.3, Salamander Soft +2.9, World Percussion +2.7,
-  Orchestral Percussion +0.9, Mallet Lab −2.2, TR-808 Studio −1.2. Full
-  before/after measurements are in `ATTRIBUTION.md`.
+  Orchestral Percussion +0.9, Mallet Lab −2.2, TR-808 Studio −1.2; voiced kits
+  −3.6 to −0.3. Full before/after measurements are in `ATTRIBUTION.md`.
 - **26 Salamander piano samples**: 13 roots from MIDI 33–105 in two velocity
   layers, five seconds each.
-- 13 kit mappings × 16 lanes: kick, snare, clap, closed hat, open hat, low tom,
+- 25 kit mappings × 16 lanes: kick, snare, clap, closed hat, open hat, low tom,
   crash, rim, 808, percussion, shaker, ride, cowbell, snap, floor tom and high
   tom. Pads retain their kit-specific labels, including mallet notes and world
   percussion names.
@@ -550,9 +553,9 @@ cargo build --release
 cargo build --release -p hs-cli
 ```
 
-Tests cover the 13-kit/155-file sample bank, live-note release/sustain,
+Tests cover the 25-kit/155-file sample bank, live-note release/sustain,
 clip+live coexistence, offline render checks for all ten demos, individual
-renders of every one-shot (208 kit-lane probes, 155 unique files), a measured
+renders of every one-shot (400 kit-lane probes, 155 unique files), a measured
 kit-balance assertion, and a real WAV vocal fixture rendered
 through import → clip → Vocal Take → Bassify/Wobble. The vocal tests assert the
 result is finite, non-silent, non-clipping and has energy in the bass band. A

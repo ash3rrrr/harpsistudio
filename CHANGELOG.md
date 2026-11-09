@@ -3,6 +3,18 @@
 All notable changes to Harpsistudio are documented here. The project follows
 [Semantic Versioning](https://semver.org/) for the application version.
 
+## [Unreleased]
+
+### Added
+
+- Twelve new Drum Rack kits (25 total) voiced at load time from the embedded,
+  already-licensed one-shots: Tape Crunch, Vinyl Dust, Sub Pressure, Glass
+  Room, Warehouse, Dub Chamber, Pocket Drums, Neon Electro, Broken Beats, Deep
+  909, Hard Techno and Cinematic Hits. No new audio files or sample licenses.
+- Drum Rack presets and the Kit parameter now cover all 25 kits. The factory
+  sound library grows from 1,152 to 1,440 sounds (60 families) because each
+  Drum Rack preset contributes its own family.
+
 ## [0.1.0] - 2026-11-09
 
 This is the first open-source release candidate. The source was previously

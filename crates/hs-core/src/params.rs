@@ -235,21 +235,7 @@ const MIDI_KEYS: &[&str] = &[
 const MIDI_SCALES: &[&str] = &["Major", "Minor", "Dorian", "Mixolydian", "Phrygian"];
 const CHORD_QUALITIES: &[&str] = &["Diatonic", "Major", "Minor", "7th", "Sus4", "Add9"];
 const VOWELS: &[&str] = &["A", "E", "I", "O", "U"];
-pub const DRUM_KIT_NAMES: &[&str] = &[
-    "Acoustic Studio",
-    "House Club",
-    "Trap 808",
-    "Dubstep",
-    "Boom Bap",
-    "Bounce",
-    "Salamander Studio",
-    "Salamander Hard",
-    "Salamander Soft",
-    "World Percussion",
-    "Orchestral Percussion",
-    "Mallet Lab",
-    "TR-808 Studio",
-];
+pub const DRUM_KIT_NAMES: &[&str] = &crate::samples::KIT_NAMES;
 
 static DEF_DRUM_RACK: [ParamDef; 9] = [
     p("Level", 0.0, 3.0, 0.85, 0.0, Fmt::Percent),
@@ -260,7 +246,14 @@ static DEF_DRUM_RACK: [ParamDef; 9] = [
     p("Drive", 0.0, 1.0, 0.2, 0.0, Fmt::Percent),
     p("Width", 0.0, 1.0, 0.6, 0.0, Fmt::Percent),
     p("Tone", 0.0, 1.0, 0.5, 0.0, Fmt::Percent),
-    p("Kit", 0.0, 12.0, 0.0, 1.0, Fmt::Enum(DRUM_KIT_NAMES)),
+    p(
+        "Kit",
+        0.0,
+        (crate::samples::KIT_NAMES.len() - 1) as f32,
+        0.0,
+        1.0,
+        Fmt::Enum(DRUM_KIT_NAMES),
+    ),
 ];
 static DEF_SALAMANDER: [ParamDef; 8] = [
     p("Level", 0.0, 3.0, 0.95, 0.0, Fmt::Percent),
@@ -807,6 +800,54 @@ impl DeviceKind {
                     name: "TR-808 Studio",
                     values: &[0.9, -2.0, 0.5, 0.6, 0.6, 0.25, 0.6, 0.55, 12.0],
                 },
+                Preset {
+                    name: "Tape Crunch",
+                    values: &[0.86, 0.0, 0.8, 0.5, 0.5, 0.35, 0.55, 0.45, 13.0],
+                },
+                Preset {
+                    name: "Vinyl Dust",
+                    values: &[0.84, -1.0, 0.7, 0.45, 0.5, 0.25, 0.5, 0.35, 14.0],
+                },
+                Preset {
+                    name: "Sub Pressure",
+                    values: &[0.9, -4.0, 1.0, 0.7, 0.6, 0.3, 0.45, 0.4, 15.0],
+                },
+                Preset {
+                    name: "Glass Room",
+                    values: &[0.88, 2.0, 1.1, 0.35, 0.5, 0.1, 0.7, 0.75, 16.0],
+                },
+                Preset {
+                    name: "Warehouse Kit",
+                    values: &[0.88, -1.0, 1.0, 0.6, 0.6, 0.35, 0.65, 0.5, 17.0],
+                },
+                Preset {
+                    name: "Dub Chamber",
+                    values: &[0.85, -3.0, 1.2, 0.5, 0.55, 0.2, 0.75, 0.3, 18.0],
+                },
+                Preset {
+                    name: "Pocket Drums",
+                    values: &[0.88, 0.0, 0.4, 0.55, 0.6, 0.12, 0.5, 0.55, 19.0],
+                },
+                Preset {
+                    name: "Neon Electro",
+                    values: &[0.9, 1.0, 0.6, 0.65, 0.65, 0.3, 0.6, 0.65, 20.0],
+                },
+                Preset {
+                    name: "Broken Beats",
+                    values: &[0.86, -1.0, 0.55, 0.6, 0.55, 0.4, 0.55, 0.35, 21.0],
+                },
+                Preset {
+                    name: "Deep 909",
+                    values: &[0.9, -4.0, 0.9, 0.6, 0.6, 0.25, 0.55, 0.4, 22.0],
+                },
+                Preset {
+                    name: "Hard Techno",
+                    values: &[0.9, -2.0, 0.5, 0.7, 0.7, 0.45, 0.6, 0.55, 23.0],
+                },
+                Preset {
+                    name: "Cinematic Hits",
+                    values: &[0.88, -4.0, 1.3, 0.45, 0.55, 0.15, 0.7, 0.5, 24.0],
+                },
             ],
             SubBass => &[
                 Preset {
@@ -1277,9 +1318,9 @@ mod tests {
     #[test]
     fn drum_rack_presets_cover_every_kit() {
         let presets = DeviceKind::DrumRack.presets();
-        assert_eq!(presets.len(), 13);
-        assert_eq!(DRUM_KIT_NAMES.len(), 13);
-        assert_eq!(DEF_DRUM_RACK[8].max, 12.0);
+        assert_eq!(presets.len(), DRUM_KIT_NAMES.len());
+        assert_eq!(DRUM_KIT_NAMES.len(), 25);
+        assert_eq!(DEF_DRUM_RACK[8].max, 24.0);
         assert_eq!(DRUM_KIT_NAMES, &crate::samples::KIT_NAMES[..]);
         for (i, preset) in presets.iter().enumerate() {
             assert_eq!(preset.name, DRUM_KIT_NAMES[i]);
@@ -1287,6 +1328,7 @@ mod tests {
             assert_eq!(preset.values[8] as usize, i);
         }
         assert_eq!(DEF_DRUM_RACK[8].format(12.0), "TR-808 Studio");
+        assert_eq!(DEF_DRUM_RACK[8].format(24.0), "Cinematic Hits");
     }
 
     #[test]

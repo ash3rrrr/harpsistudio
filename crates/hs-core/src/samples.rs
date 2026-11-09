@@ -3,6 +3,8 @@
 //! state. Assets are mono 16-bit 44.1 kHz PCM WAVs, peak-normalized per
 //! one-shot so no kit lane clips and every hit is audible. A measured,
 //! gain-only per-kit trim aligns kit loudness without altering the WAVs.
+//! Twelve further kits are voiced at load time from those same recordings,
+//! so the bank grows without shipping or licensing another sample file.
 //!
 //! Licenses and sources are recorded in `assets/audio/ATTRIBUTION.md`.
 
@@ -14,7 +16,162 @@ pub struct Sample {
     pub root: u8,
 }
 
-pub const KIT_NAMES: [&str; 13] = [
+/// Kits recorded as WAVs and embedded in the binary.
+pub const RECORDED_KITS: usize = 13;
+pub const VOICED_KIT_COUNT: usize = 12;
+pub const KIT_COUNT: usize = RECORDED_KITS + VOICED_KIT_COUNT;
+
+/// A voiced kit reworks a recorded kit at load time: resampled for pitch,
+/// filtered, saturated and bit-reduced so it reads as a new kit without
+/// shipping another sixteen WAVs or any new licensed material.
+struct Voicing {
+    source: usize,
+    semitones: f32,
+    cutoff: f32,
+    drive: f32,
+    bits: f32,
+    decay: f32,
+    body: f32,
+    trim_db: f32,
+}
+
+const VOICED_KITS: [Voicing; VOICED_KIT_COUNT] = [
+    // Boom Bap through tape: light crush and rolled-off top.
+    Voicing {
+        source: 4,
+        semitones: 0.0,
+        cutoff: 9_000.0,
+        drive: 0.55,
+        bits: 10.0,
+        decay: 1.0,
+        body: 0.15,
+        trim_db: -1.63,
+    },
+    // The same break, dustier and shorter.
+    Voicing {
+        source: 4,
+        semitones: 0.0,
+        cutoff: 5_200.0,
+        drive: 0.2,
+        bits: 8.0,
+        decay: 0.85,
+        body: 0.1,
+        trim_db: -0.33,
+    },
+    // Trap low end, tuned down and weighted.
+    Voicing {
+        source: 2,
+        semitones: -4.0,
+        cutoff: 7_000.0,
+        drive: 0.35,
+        bits: 0.0,
+        decay: 1.15,
+        body: 0.5,
+        trim_db: -3.34,
+    },
+    // Mallets pitched up into a glassy, ringing set.
+    Voicing {
+        source: 11,
+        semitones: 3.0,
+        cutoff: 17_000.0,
+        drive: 0.1,
+        bits: 0.0,
+        decay: 1.25,
+        body: 0.0,
+        trim_db: -2.82,
+    },
+    // Bounce pushed into a big, driving room.
+    Voicing {
+        source: 5,
+        semitones: -2.0,
+        cutoff: 6_500.0,
+        drive: 0.55,
+        bits: 0.0,
+        decay: 1.3,
+        body: 0.35,
+        trim_db: -3.33,
+    },
+    // Deep, dark, long-tailed dubs.
+    Voicing {
+        source: 6,
+        semitones: -3.0,
+        cutoff: 3_200.0,
+        drive: 0.25,
+        bits: 0.0,
+        decay: 1.4,
+        body: 0.55,
+        trim_db: -3.46,
+    },
+    // Tight acoustic breaks with a shorter tail.
+    Voicing {
+        source: 0,
+        semitones: 0.0,
+        cutoff: 11_000.0,
+        drive: 0.15,
+        bits: 0.0,
+        decay: 0.55,
+        body: 0.1,
+        trim_db: -1.67,
+    },
+    // Bright, clipped electro drums.
+    Voicing {
+        source: 12,
+        semitones: 2.0,
+        cutoff: 15_000.0,
+        drive: 0.4,
+        bits: 0.0,
+        decay: 0.85,
+        body: 0.2,
+        trim_db: -2.97,
+    },
+    // Crushed, lo-fi bounce breaks.
+    Voicing {
+        source: 5,
+        semitones: -1.0,
+        cutoff: 4_800.0,
+        drive: 0.7,
+        bits: 7.0,
+        decay: 0.75,
+        body: 0.05,
+        trim_db: -2.90,
+    },
+    // TR-808 pitched down into a deep house kit.
+    Voicing {
+        source: 12,
+        semitones: -5.0,
+        cutoff: 5_200.0,
+        drive: 0.3,
+        bits: 0.0,
+        decay: 1.2,
+        body: 0.45,
+        trim_db: -3.59,
+    },
+    // Saturated, hard-hitting techno.
+    Voicing {
+        source: 3,
+        semitones: -2.0,
+        cutoff: 8_500.0,
+        drive: 0.75,
+        bits: 12.0,
+        decay: 0.7,
+        body: 0.3,
+        trim_db: -3.00,
+    },
+    // Orchestral hits stretched into cinematic booms.
+    Voicing {
+        source: 10,
+        semitones: -5.0,
+        cutoff: 6_000.0,
+        drive: 0.15,
+        bits: 0.0,
+        decay: 1.5,
+        body: 0.45,
+        trim_db: -2.80,
+    },
+];
+
+/// All selectable kits: the recorded bank first, then the voiced variants.
+pub const KIT_NAMES: [&str; KIT_COUNT] = [
     "Acoustic Studio",
     "House Club",
     "Trap 808",
@@ -28,12 +185,25 @@ pub const KIT_NAMES: [&str; 13] = [
     "Orchestral Percussion",
     "Mallet Lab",
     "TR-808 Studio",
+    "Tape Crunch",
+    "Vinyl Dust",
+    "Sub Pressure",
+    "Glass Room",
+    "Warehouse Kit",
+    "Dub Chamber",
+    "Pocket Drums",
+    "Neon Electro",
+    "Broken Beats",
+    "Deep 909",
+    "Hard Techno",
+    "Cinematic Hits",
 ];
 
 /// Gain-only balance trims, in dB, measured through the Drum Rack at 48 kHz
 /// with a 0.9-velocity whole-kit probe. They align each kit's median 50 ms RMS
 /// to -14.8 dBFS; the source WAVs, EQ, compression and triggering are unchanged.
-pub const KIT_TRIM_DB: [f32; 13] = [
+/// Voiced kits carry their own trims in `VOICED_KITS`.
+pub const KIT_TRIM_DB: [f32; RECORDED_KITS] = [
     0.9, 0.9, 0.0, -0.3, 2.1, 0.1, -0.7, -1.3, 2.9, 2.7, 0.9, -2.2, -1.2,
 ];
 
@@ -353,7 +523,12 @@ const TR808_LANE_LABELS: [&str; 16] = [
 /// numbers are stable, so changing a kit never moves a lane on the pad map.
 pub fn drum_lane_label(kit: usize, lane: usize) -> &'static str {
     let lane = lane.min(15);
-    match kit {
+    let recorded = if kit < RECORDED_KITS {
+        kit
+    } else {
+        VOICED_KITS.get(kit - RECORDED_KITS).map_or(0, |v| v.source)
+    };
+    match recorded {
         6..=8 => SALAMANDER_LANE_LABELS[lane],
         9 => WORLD_LANE_LABELS[lane],
         10 => ORCHESTRAL_LANE_LABELS[lane],
@@ -401,33 +576,105 @@ const PIANO_HARD: &[&[u8]] = &[
 
 struct Bank {
     drums: Vec<Option<Sample>>,
+    voiced: Vec<Option<Sample>>,
     piano_soft: Vec<Option<Sample>>,
     piano_hard: Vec<Option<Sample>>,
 }
 
 static BANK: OnceLock<Bank> = OnceLock::new();
 
-fn remove_dc(sample: &mut Sample) {
-    if sample.data.is_empty() {
+fn remove_dc_slice(data: &mut [f32]) {
+    if data.is_empty() {
         return;
     }
-    let mean = sample.data.iter().map(|v| *v as f64).sum::<f64>() / sample.data.len() as f64;
+    let mean = data.iter().map(|v| *v as f64).sum::<f64>() / data.len() as f64;
     if mean.abs() <= f64::EPSILON {
         return;
     }
     let mean = mean as f32;
-    for value in &mut sample.data {
+    for value in data {
         *value -= mean;
     }
 }
 
+fn remove_dc(sample: &mut Sample) {
+    remove_dc_slice(&mut sample.data);
+}
+
+/// Deterministic load-time voicing: pitch resample, tail gate, one-pole
+/// lowpass, low-shelf body, tanh drive, bit reduction, then peak normalization.
+fn voice(src: &Sample, v: &Voicing) -> Sample {
+    let ratio = 2.0f32.powf(v.semitones / 12.0);
+    let len = ((src.data.len() as f32 / ratio).floor() as usize).max(64);
+    let mut out = Vec::with_capacity(len);
+    for i in 0..len {
+        let pos = i as f32 * ratio;
+        let idx = pos as usize;
+        let frac = pos - idx as f32;
+        let a = *src.data.get(idx).unwrap_or(&0.0);
+        let b = *src.data.get(idx + 1).unwrap_or(&0.0);
+        out.push(a + (b - a) * frac);
+    }
+    let keep = ((out.len() as f32 * v.decay).floor() as usize)
+        .max(64)
+        .min(out.len());
+    out.truncate(keep);
+    let fade = (out.len() / 8).max(16).min(out.len());
+    let n = out.len();
+    for i in 0..fade {
+        out[n - 1 - i] *= i as f32 / fade as f32;
+    }
+    let a = 1.0 - (-std::f32::consts::TAU * v.cutoff / src.rate).exp();
+    let mut z = 0.0;
+    for x in &mut out {
+        z += (*x - z) * a;
+        *x = z;
+    }
+    if v.body > 0.0 {
+        let ab = 1.0 - (-std::f32::consts::TAU * 160.0 / src.rate).exp();
+        let mut zb = 0.0;
+        for x in &mut out {
+            zb += (*x - zb) * ab;
+            *x += zb * v.body;
+        }
+    }
+    if v.drive > 0.0 {
+        let pre = 1.0 + v.drive * 6.0;
+        for x in &mut out {
+            *x = (*x * pre).tanh();
+        }
+    }
+    if v.bits > 0.0 {
+        let levels = 2.0f32.powf(v.bits - 1.0);
+        for x in &mut out {
+            *x = (*x * levels).round() / levels;
+        }
+    }
+    // Asymmetric transients pick up a small DC offset through the lowpass and
+    // low-shelf stages; remove it before normalizing so voiced kits match the
+    // recorded bank's near-zero bias.
+    remove_dc_slice(&mut out);
+    let peak = out.iter().fold(0.0f32, |m, x| m.max(x.abs()));
+    if peak > 1e-9 {
+        let gain = 0.98 / peak;
+        for x in &mut out {
+            *x *= gain;
+        }
+    }
+    Sample {
+        data: out,
+        rate: src.rate,
+        root: 60,
+    }
+}
+
 fn bank() -> &'static Bank {
-    BANK.get_or_init(|| Bank {
+    BANK.get_or_init(|| {
         // Some of the recorded one-shots carry a small DC bias from the source
         // recording. Remove that bias once, at decode time, rather than letting
         // each Drum Rack voice or the master bus introduce a corrective
         // high-pass. This keeps the samples' transients and musical low end.
-        drums: DRUM_FILES
+        let drums: Vec<Option<Sample>> = DRUM_FILES
             .iter()
             .map(|b| {
                 decode_wav(b).map(|mut sample| {
@@ -435,27 +682,37 @@ fn bank() -> &'static Bank {
                     sample
                 })
             })
-            .collect(),
-        piano_soft: PIANO_SOFT
-            .iter()
-            .enumerate()
-            .map(|(i, b)| {
-                decode_wav_with_root(b, PIANO_ROOTS[i]).map(|mut sample| {
-                    remove_dc(&mut sample);
-                    sample
+            .collect();
+        let mut voiced = Vec::with_capacity(VOICED_KITS.len() * 16);
+        for voicing in &VOICED_KITS {
+            for source in &KIT_SAMPLES[voicing.source] {
+                voiced.push(drums[*source as usize].as_ref().map(|s| voice(s, voicing)));
+            }
+        }
+        Bank {
+            drums,
+            voiced,
+            piano_soft: PIANO_SOFT
+                .iter()
+                .enumerate()
+                .map(|(i, b)| {
+                    decode_wav_with_root(b, PIANO_ROOTS[i]).map(|mut sample| {
+                        remove_dc(&mut sample);
+                        sample
+                    })
                 })
-            })
-            .collect(),
-        piano_hard: PIANO_HARD
-            .iter()
-            .enumerate()
-            .map(|(i, b)| {
-                decode_wav_with_root(b, PIANO_ROOTS[i]).map(|mut sample| {
-                    remove_dc(&mut sample);
-                    sample
+                .collect(),
+            piano_hard: PIANO_HARD
+                .iter()
+                .enumerate()
+                .map(|(i, b)| {
+                    decode_wav_with_root(b, PIANO_ROOTS[i]).map(|mut sample| {
+                        remove_dc(&mut sample);
+                        sample
+                    })
                 })
-            })
-            .collect(),
+                .collect(),
+        }
     })
 }
 
@@ -465,7 +722,7 @@ pub fn preload() {
 }
 
 pub fn drum_kit_count() -> usize {
-    KIT_SAMPLES.len()
+    KIT_COUNT
 }
 
 pub fn drum_sample_count() -> usize {
@@ -473,7 +730,12 @@ pub fn drum_sample_count() -> usize {
 }
 
 pub fn drum_kit_trim_db(kit: usize) -> f32 {
-    KIT_TRIM_DB[kit.min(KIT_TRIM_DB.len() - 1)]
+    if kit < RECORDED_KITS {
+        return KIT_TRIM_DB[kit];
+    }
+    VOICED_KITS
+        .get(kit - RECORDED_KITS)
+        .map_or(0.0, |v| v.trim_db)
 }
 
 pub fn drum_kit_gain(kit: usize) -> f32 {
@@ -481,16 +743,27 @@ pub fn drum_kit_gain(kit: usize) -> f32 {
 }
 
 pub fn drum(kit: usize, lane: usize) -> Option<&'static Sample> {
-    let map = KIT_SAMPLES.get(kit.min(KIT_SAMPLES.len() - 1))?;
-    let idx = *map.get(lane.min(map.len() - 1))? as usize;
-    bank().drums.get(idx).and_then(|s| s.as_ref())
+    let lane = lane.min(15);
+    if kit < RECORDED_KITS {
+        let idx = KIT_SAMPLES[kit][lane] as usize;
+        return bank().drums.get(idx).and_then(|s| s.as_ref());
+    }
+    bank()
+        .voiced
+        .get((kit - RECORDED_KITS) * 16 + lane)?
+        .as_ref()
 }
 
 /// Index into the embedded drum-file bank for a kit lane. This is exposed for
 /// coverage/measurement tests so every embedded one-shot can be accounted for.
 pub fn drum_sample_index(kit: usize, lane: usize) -> Option<usize> {
-    let map = KIT_SAMPLES.get(kit.min(KIT_SAMPLES.len() - 1))?;
-    map.get(lane.min(map.len() - 1)).map(|v| *v as usize)
+    let lane = lane.min(15);
+    let source = if kit < RECORDED_KITS {
+        kit
+    } else {
+        VOICED_KITS.get(kit - RECORDED_KITS)?.source
+    };
+    KIT_SAMPLES.get(source).map(|map| map[lane] as usize)
 }
 
 /// Returns the closest recorded piano note and whether the hard layer was used.
@@ -591,7 +864,7 @@ mod tests {
     #[test]
     fn every_kit_lane_resolves_to_a_decodable_sample() {
         preload();
-        for kit in 0..KIT_SAMPLES.len() {
+        for kit in 0..drum_kit_count() {
             for lane in 0..16 {
                 let s = drum(kit, lane).unwrap_or_else(|| panic!("kit {kit} lane {lane} missing"));
                 assert!(s.data.len() > 100);
@@ -603,7 +876,7 @@ mod tests {
     #[test]
     fn decoded_one_shots_have_no_baked_in_dc_bias() {
         preload();
-        for kit in 0..KIT_SAMPLES.len() {
+        for kit in 0..drum_kit_count() {
             for lane in 0..16 {
                 let s = drum(kit, lane).unwrap();
                 let mean = s.data.iter().map(|v| *v as f64).sum::<f64>() / s.data.len() as f64;
@@ -634,12 +907,13 @@ mod tests {
         }
     }
     #[test]
-    fn expanded_bank_has_thirteen_kits_and_155_files() {
+    fn bank_has_twenty_five_kits_and_155_files() {
         preload();
-        assert_eq!(KIT_NAMES.len(), 13);
+        assert_eq!(RECORDED_KITS, 13);
+        assert_eq!(KIT_NAMES.len(), 25);
         assert_eq!(KIT_SAMPLES.len(), 13);
         assert_eq!(DRUM_FILES.len(), 155);
-        assert_eq!(drum_kit_count(), 13);
+        assert_eq!(drum_kit_count(), 25);
         assert_eq!(KIT_SAMPLES[6][0], 43);
         assert_eq!(KIT_SAMPLES[12][15], 154);
         for i in 0..DRUM_FILES.len() {
@@ -655,12 +929,54 @@ mod tests {
 
     #[test]
     fn kit_gain_trims_are_finite_and_bounded() {
-        assert_eq!(KIT_TRIM_DB.len(), KIT_NAMES.len());
-        for (kit, trim) in KIT_TRIM_DB.iter().enumerate() {
+        assert_eq!(KIT_TRIM_DB.len(), RECORDED_KITS);
+        for kit in 0..drum_kit_count() {
+            let trim = drum_kit_trim_db(kit);
             assert!(trim.is_finite(), "kit {kit} trim is not finite");
             assert!(trim.abs() <= 6.0, "kit {kit} trim is excessive: {trim}");
             assert!(drum_kit_gain(kit).is_finite());
         }
+    }
+
+    #[test]
+    fn voiced_kits_are_normalized_and_distinct_from_their_source() {
+        preload();
+        for (vi, voicing) in VOICED_KITS.iter().enumerate() {
+            let kit = RECORDED_KITS + vi;
+            assert_eq!(
+                drum_sample_index(kit, 8),
+                drum_sample_index(voicing.source, 8),
+                "voiced kit {kit} must report its source sample for coverage"
+            );
+            for lane in 0..16 {
+                let voiced = drum(kit, lane)
+                    .unwrap_or_else(|| panic!("voiced kit {kit} lane {lane} missing"));
+                let source = drum(voicing.source, lane).unwrap();
+                assert!(voiced.data.len() > 64);
+                assert!(voiced.data.iter().all(|x| x.is_finite()));
+                let peak = voiced.data.iter().fold(0.0f32, |m, x| m.max(x.abs()));
+                assert!(
+                    (peak - 0.98).abs() < 0.01,
+                    "kit {kit} lane {lane} peak {peak:.3}"
+                );
+                let differs = voiced.data.len() != source.data.len()
+                    || voiced
+                        .data
+                        .iter()
+                        .zip(&source.data)
+                        .any(|(a, b)| (a - b).abs() > 1e-4);
+                assert!(
+                    differs,
+                    "voiced kit {kit} lane {lane} is identical to its source"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn kit_names_are_unique() {
+        let unique: std::collections::HashSet<_> = KIT_NAMES.iter().collect();
+        assert_eq!(unique.len(), KIT_NAMES.len());
     }
 
     #[test]

@@ -317,7 +317,7 @@ fn supplied_vocal_imports_bassifies_and_exports_clean_bass() {
 
 #[test]
 fn every_drum_kit_lane_and_embedded_sample_is_reachable() {
-    assert_eq!(samples::drum_kit_count(), 13);
+    assert_eq!(samples::drum_kit_count(), 25);
     assert_eq!(samples::drum_sample_count(), 155);
     let mut seen = std::collections::BTreeSet::new();
     for kit in 0..samples::drum_kit_count() {

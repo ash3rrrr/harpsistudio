@@ -120,8 +120,8 @@ fn every_embedded_drum_sample_renders_individually() {
     let probes = probes();
     let expected_files = samples::drum_sample_count();
     assert_eq!(expected_files, 155);
-    assert_eq!(samples::drum_kit_count(), 13);
-    assert_eq!(probes.len(), 13 * 16);
+    assert_eq!(samples::drum_kit_count(), 25);
+    assert_eq!(probes.len(), samples::drum_kit_count() * 16);
 
     let mut seen = vec![false; expected_files];
     let mut min_rms = f32::MAX;
