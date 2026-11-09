@@ -1,5 +1,7 @@
 # Harpsistudio
 
+[![CI](https://github.com/ash3rrrr/harpsistudio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ash3rrrr/harpsistudio/actions/workflows/ci.yml)
+
 Harpsistudio is a native beat workstation for Windows, written in Rust. It uses
 an Ableton Live 12-style shell: the browser collapses from the top-left, the
 Session/Arrangement selector sits at the top-right, Clip and Device stack in a
