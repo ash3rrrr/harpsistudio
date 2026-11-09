@@ -1,0 +1,209 @@
+kit	kit_name	lane	label	midi_note	sample_index
+0	Acoustic Studio	0	Kick	36	0
+0	Acoustic Studio	1	Snare	38	1
+0	Acoustic Studio	2	Clap	39	2
+0	Acoustic Studio	3	Hat	42	4
+0	Acoustic Studio	4	Open Hat	46	5
+0	Acoustic Studio	5	Low Tom	45	6
+0	Acoustic Studio	6	Crash	49	9
+0	Acoustic Studio	7	Rim	37	2
+0	Acoustic Studio	8	Sub 808	35	0
+0	Acoustic Studio	9	Perc	43	7
+0	Acoustic Studio	10	Shaker	70	11
+0	Acoustic Studio	11	Ride	51	10
+0	Acoustic Studio	12	Cowbell	56	3
+0	Acoustic Studio	13	Snap	50	2
+0	Acoustic Studio	14	Floor Tom	41	8
+0	Acoustic Studio	15	High Tom	48	7
+1	House Club	0	Kick	36	0
+1	House Club	1	Snare	38	1
+1	House Club	2	Clap	39	27
+1	House Club	3	Hat	42	4
+1	House Club	4	Open Hat	46	5
+1	House Club	5	Low Tom	45	6
+1	House Club	6	Crash	49	9
+1	House Club	7	Rim	37	2
+1	House Club	8	Sub 808	35	33
+1	House Club	9	Perc	43	7
+1	House Club	10	Shaker	70	4
+1	House Club	11	Ride	51	10
+1	House Club	12	Cowbell	56	28
+1	House Club	13	Snap	50	2
+1	House Club	14	Floor Tom	41	8
+1	House Club	15	High Tom	48	7
+2	Trap 808	0	Kick	36	12
+2	Trap 808	1	Snare	38	13
+2	Trap 808	2	Clap	39	15
+2	Trap 808	3	Hat	42	16
+2	Trap 808	4	Open Hat	46	17
+2	Trap 808	5	Low Tom	45	18
+2	Trap 808	6	Crash	49	19
+2	Trap 808	7	Rim	37	20
+2	Trap 808	8	Sub 808	35	21
+2	Trap 808	9	Perc	43	22
+2	Trap 808	10	Shaker	70	16
+2	Trap 808	11	Ride	51	19
+2	Trap 808	12	Cowbell	56	22
+2	Trap 808	13	Snap	50	14
+2	Trap 808	14	Floor Tom	41	18
+2	Trap 808	15	High Tom	48	18
+3	Dubstep	0	Kick	36	12
+3	Dubstep	1	Snare	38	13
+3	Dubstep	2	Clap	39	15
+3	Dubstep	3	Hat	42	16
+3	Dubstep	4	Open Hat	46	17
+3	Dubstep	5	Low Tom	45	18
+3	Dubstep	6	Crash	49	19
+3	Dubstep	7	Rim	37	20
+3	Dubstep	8	Sub 808	35	23
+3	Dubstep	9	Perc	43	22
+3	Dubstep	10	Shaker	70	16
+3	Dubstep	11	Ride	51	19
+3	Dubstep	12	Cowbell	56	22
+3	Dubstep	13	Snap	50	14
+3	Dubstep	14	Floor Tom	41	18
+3	Dubstep	15	High Tom	48	18
+4	Boom Bap	0	Kick	36	34
+4	Boom Bap	1	Snare	38	35
+4	Boom Bap	2	Clap	39	36
+4	Boom Bap	3	Hat	42	37
+4	Boom Bap	4	Open Hat	46	38
+4	Boom Bap	5	Low Tom	45	39
+4	Boom Bap	6	Crash	49	40
+4	Boom Bap	7	Rim	37	35
+4	Boom Bap	8	Sub 808	35	41
+4	Boom Bap	9	Perc	43	42
+4	Boom Bap	10	Shaker	70	37
+4	Boom Bap	11	Ride	51	40
+4	Boom Bap	12	Cowbell	56	36
+4	Boom Bap	13	Snap	50	36
+4	Boom Bap	14	Floor Tom	41	39
+4	Boom Bap	15	High Tom	48	39
+5	Bounce	0	Kick	36	24
+5	Bounce	1	Snare	38	25
+5	Bounce	2	Clap	39	27
+5	Bounce	3	Hat	42	28
+5	Bounce	4	Open Hat	46	29
+5	Bounce	5	Low Tom	45	30
+5	Bounce	6	Crash	49	32
+5	Bounce	7	Rim	37	26
+5	Bounce	8	Sub 808	35	33
+5	Bounce	9	Perc	43	31
+5	Bounce	10	Shaker	70	28
+5	Bounce	11	Ride	51	32
+5	Bounce	12	Cowbell	56	26
+5	Bounce	13	Snap	50	26
+5	Bounce	14	Floor Tom	41	30
+5	Bounce	15	High Tom	48	31
+6	Salamander Studio	0	Kick	36	43
+6	Salamander Studio	1	Snare	38	44
+6	Salamander Studio	2	Stick	39	45
+6	Salamander Studio	3	Closed Hat	42	46
+6	Salamander Studio	4	Open Hat	46	47
+6	Salamander Studio	5	Low Tom	45	48
+6	Salamander Studio	6	Crash	49	49
+6	Salamander Studio	7	Off Snare	37	50
+6	Salamander Studio	8	Kick 2	35	51
+6	Salamander Studio	9	Splash	43	52
+6	Salamander Studio	10	Foot Hat	70	53
+6	Salamander Studio	11	Ride	51	54
+6	Salamander Studio	12	Cowbell	56	55
+6	Salamander Studio	13	Snare 2	50	56
+6	Salamander Studio	14	Floor Tom	41	57
+6	Salamander Studio	15	High Tom	48	58
+7	Salamander Hard	0	Kick	36	59
+7	Salamander Hard	1	Snare	38	60
+7	Salamander Hard	2	Stick	39	61
+7	Salamander Hard	3	Closed Hat	42	62
+7	Salamander Hard	4	Open Hat	46	63
+7	Salamander Hard	5	Low Tom	45	64
+7	Salamander Hard	6	Crash	49	65
+7	Salamander Hard	7	Off Snare	37	66
+7	Salamander Hard	8	Kick 2	35	67
+7	Salamander Hard	9	Splash	43	68
+7	Salamander Hard	10	Foot Hat	70	69
+7	Salamander Hard	11	Ride	51	70
+7	Salamander Hard	12	Cowbell	56	71
+7	Salamander Hard	13	Snare 2	50	72
+7	Salamander Hard	14	Floor Tom	41	73
+7	Salamander Hard	15	High Tom	48	74
+8	Salamander Soft	0	Kick	36	75
+8	Salamander Soft	1	Snare	38	76
+8	Salamander Soft	2	Stick	39	77
+8	Salamander Soft	3	Closed Hat	42	78
+8	Salamander Soft	4	Open Hat	46	79
+8	Salamander Soft	5	Low Tom	45	80
+8	Salamander Soft	6	Crash	49	81
+8	Salamander Soft	7	Off Snare	37	82
+8	Salamander Soft	8	Kick 2	35	83
+8	Salamander Soft	9	Splash	43	84
+8	Salamander Soft	10	Foot Hat	70	85
+8	Salamander Soft	11	Ride	51	86
+8	Salamander Soft	12	Cowbell	56	87
+8	Salamander Soft	13	Snare 2	50	88
+8	Salamander Soft	14	Floor Tom	41	89
+8	Salamander Soft	15	High Tom	48	90
+9	World Percussion	0	Cajon	36	91
+9	World Percussion	1	Bongo	38	92
+9	World Percussion	2	Hand Clap	39	93
+9	World Percussion	3	Egg Shaker	42	94
+9	World Percussion	4	Tambourine	46	95
+9	World Percussion	5	Low Conga	45	96
+9	World Percussion	6	Darbuka Pa	49	97
+9	World Percussion	7	Claves	37	98
+9	World Percussion	8	Cajon Bass	35	99
+9	World Percussion	9	Conga	43	100
+9	World Percussion	10	Maracas	70	101
+9	World Percussion	11	Castanets	51	102
+9	World Percussion	12	Darbuka Tak	56	103
+9	World Percussion	13	Clap 2	50	104
+9	World Percussion	14	Tumba	41	105
+9	World Percussion	15	Bongo High	48	106
+10	Orchestral Percussion	0	Bass Drum	36	107
+10	Orchestral Percussion	1	Snare	38	108
+10	Orchestral Percussion	2	Rimshot	39	109
+10	Orchestral Percussion	3	Sleigh Bells	42	110
+10	Orchestral Percussion	4	Susp Cym	46	111
+10	Orchestral Percussion	5	Tenor Low	45	112
+10	Orchestral Percussion	6	Crash	49	113
+10	Orchestral Percussion	7	Claves	37	114
+10	Orchestral Percussion	8	Muted BD	35	115
+10	Orchestral Percussion	9	Low Conga	43	116
+10	Orchestral Percussion	10	Shaker	70	117
+10	Orchestral Percussion	11	Cym Ride	51	118
+10	Orchestral Percussion	12	Cowbell	56	119
+10	Orchestral Percussion	13	Snare Off	50	120
+10	Orchestral Percussion	14	Tenor Floor	41	121
+10	Orchestral Percussion	15	Tenor High	48	122
+11	Mallet Lab	0	Marimba C2	36	123
+11	Mallet Lab	1	Marimba F1	38	124
+11	Mallet Lab	2	Marimba G2	39	125
+11	Mallet Lab	3	Marimba B2	42	126
+11	Mallet Lab	4	Marimba C4	46	127
+11	Mallet Lab	5	Marimba F3	45	128
+11	Mallet Lab	6	Marimba G4	49	129
+11	Mallet Lab	7	Marimba B4	37	130
+11	Mallet Lab	8	Marimba C6	35	131
+11	Mallet Lab	9	Glock G4	43	132
+11	Mallet Lab	10	Glock C5	70	133
+11	Mallet Lab	11	Glock G6	51	134
+11	Mallet Lab	12	Xylo G3	56	135
+11	Mallet Lab	13	Xylo C4	50	136
+11	Mallet Lab	14	Bell C4	41	137
+11	Mallet Lab	15	Bell G4	48	138
+12	TR-808 Studio	0	Kick	36	139
+12	TR-808 Studio	1	Snare	38	140
+12	TR-808 Studio	2	Clap	39	141
+12	TR-808 Studio	3	Closed Hat	42	142
+12	TR-808 Studio	4	Open Hat	46	143
+12	TR-808 Studio	5	Low Tom	45	144
+12	TR-808 Studio	6	Cymbal	49	145
+12	TR-808 Studio	7	Rim	37	146
+12	TR-808 Studio	8	Long 808	35	147
+12	TR-808 Studio	9	Claves	43	148
+12	TR-808 Studio	10	Maracas	70	149
+12	TR-808 Studio	11	Ride	51	150
+12	TR-808 Studio	12	Cowbell	56	151
+12	TR-808 Studio	13	Snare Long	50	152
+12	TR-808 Studio	14	Mid Tom	41	153
+12	TR-808 Studio	15	High Tom	48	154

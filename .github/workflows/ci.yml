@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: ${{ matrix.os }} / fmt, lint, tests, release
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      # Linux build dependencies: ALSA for cpal/midir, pkg-config for
+      # alsa-sys, GL/EGL for eframe's glow backend, and the X11,
+      # Wayland and XKB packages winit probes. rfd uses the XDG
+      # desktop portal via ashpd/zbus, so GTK3 is not needed.
+      - name: Install Linux system libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev \
+            libgl1-mesa-dev \
+            pkg-config \
+            libwayland-dev \
+            libx11-dev \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxinerama-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libxrandr-dev
+
+      - name: Cache Rust artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Lint the whole workspace
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Test the whole workspace
+        run: cargo test --workspace --no-fail-fast
+
+      - name: Build the desktop app
+        run: cargo build --release -p hs-app
+
+      - name: Build the headless CLI
+        run: cargo build --release -p hs-cli

@@ -1,0 +1,18 @@
+# Normalize text files so Windows and Linux checkouts produce identical diffs,
+# while keeping batch files CRLF and binary assets untouched.
+* text=auto
+
+*.rs text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.tsv text eol=lf
+*.bat text eol=crlf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary
+*.wav binary

@@ -1,0 +1,30 @@
+Harpsistudio
+============
+
+Copyright (c) 2026 Harpsistudio contributors.
+
+Code license
+------------
+
+The source code in this repository is licensed under the MIT License. See
+`LICENSE`.
+
+Embedded audio and other assets
+-------------------------------
+
+The MIT License does not relicense the recorded audio in this repository. The
+13 drum kits (155 one-shots), the Salamander Grand Piano samples, the Vocal
+Riddim take, and the automated vocal test fixture keep the licenses recorded
+in `crates/hs-core/assets/audio/ATTRIBUTION.md`. Those licenses include
+Creative Commons Attribution 3.0, CC0 1.0, and public domain dedications. The
+demonstration renders are generated from these assets and should be
+redistributed only with the applicable attribution. If you redistribute the
+application or its rendered audio, keep the applicable notices with it.
+
+Trademarks
+----------
+
+Harpsistudio is an independent project. It is not affiliated with, endorsed by,
+or sponsored by Ableton AG. "Ableton" and "Live" are trademarks of Ableton AG;
+they are used only to describe the workstation's interaction model. No Ableton
+artwork or proprietary UI assets are included.

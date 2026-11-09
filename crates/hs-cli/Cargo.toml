@@ -1,0 +1,14 @@
+[package]
+name = "hs-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Headless render and inspection CLI for Harpsistudio projects"
+
+[[bin]]
+name = "harpsistudio-cli"
+path = "src/main.rs"
+
+[dependencies]
+hs-core = { path = "../hs-core" }

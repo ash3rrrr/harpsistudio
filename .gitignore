@@ -1,0 +1,34 @@
+# Rust build output
+/target/
+**/target/
+
+# Capture and diagnostic dumps
+*.bmp
+*.pdb
+capture.log
+/screenshots/raw/
+
+# Transient renders and scratch files
+/tmp/
+/scratch/
+*.tmp
+
+# Editor and OS noise
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and backups
+*.log
+*.orig
+*.rej
