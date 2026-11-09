@@ -143,7 +143,7 @@ pub struct Preset {
     pub values: &'static [f32],
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct Device {
     pub kind: DeviceKind,
     pub params: Vec<f32>,

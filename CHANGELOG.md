@@ -7,6 +7,12 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Added
 
+- **Bounded undo/redo** across the editor. Notes, instruments, effects and
+  parameters, mixer moves, arrangement/track structure and tempo become one
+  undo step per completed gesture. The history retains at most 64 snapshots,
+  invalidates redo after a new edit, and republishes restored songs without
+  stopping playback. `CTRL/CMD+Z`, `CTRL/CMD+SHIFT+Z`, `CTRL+Y` and the
+  bottom-rail **UNDO**/**REDO** controls are available.
 - Standard MIDI File export for arrangement clips from the desktop **FILES**
   tab and `harpsistudio-cli midi`. It preserves tempo, track names, clip
   markers, note timing and velocity. Session-only projects export their first
@@ -26,6 +32,10 @@ All notable changes to Harpsistudio are documented here. The project follows
 
 ### Changed
 
+- Added undo/redo regression tests for ordering, redo invalidation, the
+  snapshotted depth bound, gesture batching, both redo chords, mixed-edit round
+  trips and live-engine playback. Normalized three MIDI importer test
+  assertions so the strict Clippy gate passes.
 - CI now smoke-tests `list-demos`, `inspect`, MIDI export and MIDI import
   through the release `harpsistudio-cli` binary on Ubuntu.
 - Added MIDI import round-trip coverage for the **Vocal Riddim** factory demo,

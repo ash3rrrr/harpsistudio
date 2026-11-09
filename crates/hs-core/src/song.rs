@@ -110,7 +110,7 @@ impl Note {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Clip {
     pub name: String,
     /// >= 0 is a session clip in that scene row; -1 is an arrangement clip.
@@ -175,7 +175,7 @@ impl Clip {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Track {
     pub name: String,
     pub color: [u8; 3],
@@ -254,7 +254,7 @@ impl Track {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Song {
     pub name: String,
     pub bpm: f64,

@@ -38,6 +38,11 @@ included.
 - **One engine, two frontends.** The Windows UI and the headless
   `harpsistudio-cli` share the same `hs-core` song and offline-render path, so
   projects, demos and CI exports go through the same audio code.
+- **Bounded undo/redo.** Every published song edit - notes, instruments,
+  effects and parameters, mixer moves, arrangement/track structure and tempo -
+  becomes one history step when the gesture finishes. The history is capped at
+  64 snapshots, so memory stays bounded; undo/redo republishes the restored
+  song without stopping playback.
 - **Open interchange.** Export arrangement clips as a Standard MIDI File from
   **FILES** or the CLI, then import one back into a `.harp` project. Tempo,
   track names, clip markers, note timing and velocity survive the round trip;
@@ -495,6 +500,8 @@ clips on the same track.
 | `←` / `→` | Jump one bar |
 | `DEL` | Delete selected note, or selected clip outside the piano roll |
 | `SHIFT+DEL` | Delete selected clip from the piano roll |
+| `CTRL/CMD+Z` | Undo the last completed edit |
+| `CTRL/CMD+SHIFT+Z` or `CTRL+Y` | Redo |
 | `CTRL+S` | Save |
 | `ESC` | Panic: stop all sound and clear launched clips |
 
@@ -569,6 +576,7 @@ harpsistudio/
 │  │  ├─ src/midi_import.rs      # format 0/1 Standard MIDI File reader
 │  │  ├─ src/project.rs         # .harp save/load, WAV and MIDI export
 │  │  ├─ src/song.rs            # Song/Track/Clip/Note model
+│  │  ├─ src/undo.rs            # bounded UI-thread snapshot undo/redo
 │  │  └─ examples/render_demo_artifacts.rs # reproducible delivery proof
 │  ├─ hs-app/                   # eframe/egui interface and CPAL audio device
 │  │  ├─ src/app.rs             # shell, transport, browser, actions
@@ -590,6 +598,10 @@ harpsistudio/
 The UI publishes immutable song snapshots to the audio callback; parameter edits
 and launches travel through a command channel. Voices and effect state live
 across snapshots, so turning a knob does not restart notes.
+
+The UI also owns a bounded undo history on the UI thread. Undo and redo restore
+a previous `Song` snapshot and republish it through the same path, so the audio
+engine never sees history state or additional audio-thread work.
 
 ## Development
 
@@ -617,6 +629,10 @@ result is finite, non-silent, non-clipping and has energy in the bass band. A
 capture-path test drives the same interleaved-buffer conversion the microphone
 and WASAPI loopback use (i16 and f32) with a real audio buffer, then renders the
 resulting take. Another test checks that takes survive project save/load inline.
+Undo/redo tests cover ordering, redo invalidation, the 64-snapshot bound,
+gesture batching, both redo chords, and a mixed edit sequence that returns to
+the exact original project and forward again. A live-engine test keeps playback
+running through undo and asserts the output remains finite and non-silent.
 
 The pattern tests assert library counts and tag coverage, scale membership and
 bar bounds for every note, three-note chord voicings, single-line arpeggios,

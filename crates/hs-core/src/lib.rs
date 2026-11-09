@@ -16,3 +16,4 @@ pub mod project;
 pub mod samples;
 pub mod song;
 pub mod sounds;
+pub mod undo;

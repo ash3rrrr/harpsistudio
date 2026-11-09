@@ -21,6 +21,7 @@ use hs_core::song::{
     launch_quantum_label, next_follow_action, next_follow_after, Clip, Note, Song,
 };
 use hs_core::sounds::{self, SoundCategory};
+use hs_core::undo::{UndoHistory, DEFAULT_UNDO_LIMIT};
 use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::{BufWriter, Write};
@@ -253,6 +254,9 @@ pub struct HarpsiApp {
     pub status_until: f64,
     pub time: f64,
     pub dirty: bool,
+    pub history: UndoHistory<Song>,
+    history_pending: bool,
+    history_suspended: bool,
     pub keyboard_octave: i32,
     key_notes: [Option<(usize, u8)>; 13],
     capture: Option<UiCapture>,
@@ -292,6 +296,7 @@ impl HarpsiApp {
         // Decode the embedded drum/piano bank before the audio callback starts.
         hs_core::samples::preload();
         let song = presets::demo_song(0);
+        let history = UndoHistory::new(song.clone(), DEFAULT_UNDO_LIMIT);
         let (shared, _arc, _rx) = Shared::new(&song);
         let mut app = Self {
             song,
@@ -329,6 +334,9 @@ impl HarpsiApp {
             status_until: 6.0,
             time: 0.0,
             dirty: false,
+            history,
+            history_pending: false,
+            history_suspended: false,
             keyboard_octave: 4,
             key_notes: [None; 13],
             capture: None,
@@ -395,6 +403,84 @@ impl HarpsiApp {
     pub fn publish_now(&mut self) {
         self.shared.publish(&self.song);
         self.dirty = false;
+        if !self.history_suspended {
+            self.history_pending = true;
+        }
+    }
+
+    /// Save the current project as one completed undo step. No-op publishes
+    /// are ignored by the history so duplicate snapshots never consume depth.
+    fn commit_history(&mut self) -> bool {
+        if self.history_suspended {
+            self.history_pending = false;
+            return false;
+        }
+        let recorded = self.history.record(self.song.clone());
+        self.history_pending = false;
+        recorded
+    }
+
+    /// Commit a pending edit only when the user's gesture has settled. Pointer
+    /// drags and focused text fields keep accumulating into a single snapshot.
+    fn settle_history(&mut self, pointer_down: bool, text_editing: bool) {
+        if self.history_pending && !pointer_down && !text_editing {
+            self.commit_history();
+        }
+    }
+
+    fn apply_history_snapshot(&mut self, song: Song) {
+        self.history_suspended = true;
+        self.song = song;
+        self.drag = DragState::None;
+        self.note_drag_origins.clear();
+        self.clear_note_selection();
+        self.sel_track = self.sel_track.min(self.song.tracks.len().saturating_sub(1));
+        let last_scene = self.song.scenes.len().saturating_sub(1) as i32;
+        self.sel_scene = self.sel_scene.clamp(0, last_scene.max(0));
+        self.clip_edit = self
+            .clip_edit
+            .filter(|cr| clip_at(&self.song, cr).is_some());
+        if let Some(cr) = self.clip_edit {
+            self.sel_track = cr.track;
+        }
+        self.sync_launched();
+        self.launched.fill(None);
+        self.publish_now();
+        self.history_suspended = false;
+    }
+
+    pub fn undo(&mut self) -> bool {
+        if self.history_pending {
+            self.commit_history();
+        }
+        match self.history.undo() {
+            Some(song) => {
+                self.apply_history_snapshot(song);
+                self.flash("Undo.");
+                true
+            }
+            None => {
+                self.flash("Nothing to undo.");
+                false
+            }
+        }
+    }
+
+    pub fn redo(&mut self) -> bool {
+        if self.history_pending {
+            self.commit_history();
+        }
+        match self.history.redo() {
+            Some(song) => {
+                self.apply_history_snapshot(song);
+                self.flash("Redo.");
+                true
+            }
+            None => {
+                self.flash("Nothing to redo.");
+                false
+            }
+        }
     }
 
     pub fn clear_note_selection(&mut self) {
@@ -631,8 +717,7 @@ impl HarpsiApp {
         self.device_open = false;
         self.vocal_style = style;
         self.launched[idx] = Some(0);
-        self.dirty = true;
-        self.shared.publish(&self.song);
+        self.publish_now();
         self.shared.send(Cmd::Launch {
             track: idx,
             scene: 0,
@@ -1427,6 +1512,19 @@ impl HarpsiApp {
         }
 
         if editing {
+            return;
+        }
+        let shift = ctx.input(|i| i.modifiers.shift);
+        let undo = command && !shift && ctx.input(|i| i.key_pressed(egui::Key::Z));
+        let redo = command
+            && (ctx.input(|i| i.key_pressed(egui::Key::Y))
+                || (shift && ctx.input(|i| i.key_pressed(egui::Key::Z))));
+        if undo {
+            self.undo();
+            return;
+        }
+        if redo {
+            self.redo();
             return;
         }
         let playing = self.shared.is_playing();
@@ -3537,11 +3635,41 @@ impl HarpsiApp {
         let mix_w = 78.0;
         let gap = 6.0;
         let total = clip_w + device_w + mix_w + gap * 2.0;
+        let can_undo = self.history.can_undo();
+        let can_redo = self.history.can_redo();
+        let undo_r = Rect::from_min_size(
+            Pos2::new(rect.left() + 14.0, rect.top() + 4.0),
+            Vec2::new(50.0, 22.0),
+        );
+        let undo_resp = small_btn(
+            ui,
+            undo_r,
+            Id::unique("undo"),
+            "↶ UNDO",
+            if can_undo { MINT } else { FAINT },
+        );
+        if undo_resp.clicked() && can_undo {
+            self.undo();
+        }
+        let redo_r = Rect::from_min_size(
+            Pos2::new(undo_r.right() + 4.0, rect.top() + 4.0),
+            Vec2::new(50.0, 22.0),
+        );
+        let redo_resp = small_btn(
+            ui,
+            redo_r,
+            Id::unique("redo"),
+            "REDO ↷",
+            if can_redo { MINT } else { FAINT },
+        );
+        if redo_resp.clicked() && can_redo {
+            self.redo();
+        }
         txt(
             &p,
-            Pos2::new(rect.left() + 14.0, rect.center().y),
+            Pos2::new(rect.left() + 126.0, rect.center().y),
             Align2::LEFT_CENTER,
-            fit(&state, (rect.width() - total - 42.0).max(80.0), 8.0),
+            fit(&state, (rect.width() - total - 154.0).max(80.0), 8.0),
             8.0,
             FAINT,
         );
@@ -3599,7 +3727,7 @@ impl HarpsiApp {
             &p,
             Pos2::new(rect.left() + 14.0, rect.center().y),
             Align2::LEFT_CENTER,
-            "SPACE play/stop  ·  1/2 main  ·  TAB session/arrangement  ·  3 clip  ·  4 device  ·  5 mixer  ·  A-K piano  ·  CTRL+S save",
+            "SPACE play/stop  ·  1/2 main  ·  TAB session/arrangement  ·  3 clip  ·  4 device  ·  5 mixer  ·  A-K piano  ·  CTRL+Z undo  ·  CTRL+SHIFT+Z redo  ·  CTRL+S save",
             8.5,
             FAINT,
         );
@@ -3829,6 +3957,9 @@ impl eframe::App for HarpsiApp {
 
         self.view_controls(ui, controls);
         self.handle_keys(ui);
+        let pointer_down = ui.ctx().input(|i| i.pointer.any_down());
+        let text_editing = ui.ctx().text_edit_focused();
+        self.settle_history(pointer_down, text_editing);
         self.capture_tick(ui.ctx());
         ui.ctx().request_repaint_after(Duration::from_millis(30));
     }
@@ -3910,6 +4041,7 @@ mod browser_tests {
             song.tracks[track].clips.push(clip);
         }
         let (shared, _song_arc, _rx) = Shared::new(&song);
+        let history = UndoHistory::new(song.clone(), DEFAULT_UNDO_LIMIT);
         HarpsiApp {
             song,
             shared,
@@ -3946,6 +4078,9 @@ mod browser_tests {
             status_until: 0.0,
             time: 0.0,
             dirty: false,
+            history,
+            history_pending: false,
+            history_suspended: false,
             keyboard_octave: 4,
             key_notes: [None; 13],
             capture: None,
@@ -4351,5 +4486,263 @@ mod browser_tests {
         app.close_device();
         assert_eq!(app.view, View::Session);
         assert!(!app.detail_open());
+    }
+
+    #[test]
+    fn drag_gesture_is_batched_into_one_undo_step() {
+        let mut app = headless_app();
+        app.clip_edit = Some(ClipRef {
+            track: 0,
+            scene: 0,
+            start: 0.0,
+        });
+        let original = app.song.clone();
+        let baseline = app.history.len();
+
+        // Every frame of a drag publishes audio, but only the final settled
+        // frame may create a history checkpoint.
+        for i in 0..40 {
+            if let Some(clip) = clip_at_mut(&mut app.song, &app.clip_edit.expect("clip selected")) {
+                if let Some(note) = clip.notes.first_mut() {
+                    note.start = i as f64 / 4.0;
+                    note.vel = 0.3 + i as f32 / 100.0;
+                }
+            }
+            app.publish_now();
+            app.settle_history(true, false);
+        }
+        assert_eq!(app.history.len(), baseline);
+
+        app.settle_history(false, false);
+        assert_eq!(app.history.len(), baseline + 1);
+        let dragged = app.song.clone();
+        assert!(app.undo());
+        assert_eq!(app.song, original);
+        assert!(app.redo());
+        assert_eq!(app.song, dragged);
+    }
+
+    #[test]
+    fn mixed_edits_round_trip_and_new_edits_invalidate_redo() {
+        let mut app = headless_app();
+        let original = app.song.clone();
+
+        app.song.bpm = 142.0;
+        app.song.launch_quantum = 8.0;
+        app.publish_now();
+        app.commit_history();
+
+        app.act(Act::SetInstrument {
+            track: 0,
+            kind: DeviceKind::SubBass,
+        });
+        app.commit_history();
+
+        app.act(Act::AddEffect {
+            track: 0,
+            kind: DeviceKind::Delay,
+        });
+        app.commit_history();
+
+        app.song.tracks[0].effects[0].set(0, 0.42);
+        app.publish_now();
+        app.commit_history();
+
+        app.act(Act::ToggleEffect { track: 0, idx: 0 });
+        app.commit_history();
+
+        app.song.tracks[1].volume = 0.45;
+        app.song.tracks[1].pan = -0.4;
+        app.song.tracks[1].send = 0.7;
+        app.song.tracks[1].mute = true;
+        app.song.tracks[1].solo = true;
+        app.publish_now();
+        app.commit_history();
+
+        let cr = ClipRef {
+            track: 0,
+            scene: 0,
+            start: 0.0,
+        };
+        if let Some(clip) = clip_at_mut(&mut app.song, &cr) {
+            clip.notes.push(Note::new(3.5, 0.75, 64, 0.66));
+            clip.notes[0].len = 0.5;
+            clip.notes[0].vel = 0.4;
+        }
+        app.publish_now();
+        app.commit_history();
+
+        app.act(Act::AddArrangementClip {
+            track: 0,
+            beat: 8.0,
+            bars: 4.0,
+        });
+        app.commit_history();
+
+        app.act(Act::AddTrack(DeviceKind::Organ));
+        app.commit_history();
+        app.act(Act::DeleteTrack(app.song.tracks.len() - 1));
+        app.commit_history();
+
+        app.song.name = "Exact round trip".to_string();
+        app.song.loop_enabled = true;
+        app.publish_now();
+        app.commit_history();
+
+        let edited = app.song.clone();
+        assert_ne!(edited, original);
+        let steps = app.history.len() - 1;
+        assert!(steps >= 10, "expected a mixed history, got {steps} steps");
+
+        let mut undone = 0;
+        while app.undo() {
+            undone += 1;
+        }
+        assert_eq!(undone, steps);
+        assert_eq!(app.song, original);
+        assert!(!app.history.can_undo());
+
+        let mut redone = 0;
+        while app.redo() {
+            redone += 1;
+        }
+        assert_eq!(redone, steps);
+        assert_eq!(app.song, edited);
+        assert!(!app.history.can_redo());
+
+        assert!(app.undo());
+        app.song.bpm = 91.0;
+        app.publish_now();
+        assert!(!app.redo());
+        assert_eq!(app.song.bpm, 91.0);
+        assert!(!app.history.can_redo());
+    }
+
+    fn shortcut_frame(
+        ctx: &egui::Context,
+        app: &mut HarpsiApp,
+        key: egui::Key,
+        modifiers: egui::Modifiers,
+    ) {
+        let raw = egui::RawInput {
+            screen_rect: Some(Rect::from_min_size(Pos2::ZERO, Vec2::new(1200.0, 800.0))),
+            focused: true,
+            events: vec![egui::Event::Key {
+                key,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers,
+            }],
+            ..Default::default()
+        };
+        let mut output = ctx.run_ui(raw, |ctx| {
+            egui::Area::new(egui::Id::unique("headless-undo-keys"))
+                .fixed_pos(Pos2::ZERO)
+                .show(ctx, |ui| {
+                    // RawInput::default has no persistent modifier state, so
+                    // mirror what the native backend supplies each frame.
+                    ui.ctx().input_mut(|input| input.modifiers = modifiers);
+                    app.handle_keys(ui);
+                });
+        });
+        output.textures_delta.clear();
+    }
+
+    #[test]
+    fn standard_shortcuts_drive_undo_and_both_redo_chords() {
+        let ctx = egui::Context::default();
+        let mut app = headless_app();
+        let original = app.song.clone();
+        app.song.bpm = 149.0;
+        app.publish_now();
+        app.commit_history();
+        let edited = app.song.clone();
+
+        let command = egui::Modifiers {
+            command: true,
+            ctrl: true,
+            ..Default::default()
+        };
+        let command_shift = egui::Modifiers {
+            command: true,
+            ctrl: true,
+            shift: true,
+            ..Default::default()
+        };
+
+        shortcut_frame(&ctx, &mut app, egui::Key::Z, command);
+        assert_eq!(app.song, original);
+        shortcut_frame(&ctx, &mut app, egui::Key::Z, command_shift);
+        assert_eq!(app.song, edited);
+
+        shortcut_frame(&ctx, &mut app, egui::Key::Z, command);
+        assert_eq!(app.song, original);
+        shortcut_frame(&ctx, &mut app, egui::Key::Y, command);
+        assert_eq!(app.song, edited);
+    }
+
+    #[test]
+    fn undo_and_redo_leave_the_live_transport_running() {
+        let mut app = headless_app();
+        app.shared.playing.store(true, Ordering::SeqCst);
+        let original = app.song.clone();
+        app.song.tracks[0].volume = 0.31;
+        app.publish_now();
+        app.commit_history();
+
+        assert!(app.undo());
+        assert_eq!(app.song, original);
+        assert!(app.shared.is_playing());
+        assert!(app.redo());
+        assert!(app.shared.is_playing());
+    }
+
+    #[test]
+    fn undo_during_live_engine_playback_keeps_audio_flowing() {
+        let mut app = headless_app();
+        let (shared, initial, rx) = Shared::new(&app.song);
+        let mut engine = Engine::new(48_000.0, initial, Some(rx), Some(shared.clone()));
+        app.shared = shared.clone();
+        shared.send(Cmd::Launch { track: 0, scene: 0 });
+        shared.send(Cmd::Play);
+
+        let mut block = vec![0.0f32; 1024 * 2];
+        engine.process(&mut block, 2);
+        let peak_before = block.iter().fold(0.0f32, |peak, s| peak.max(s.abs()));
+        assert!(
+            peak_before > 0.001,
+            "demo playback was silent: {peak_before}"
+        );
+        assert!(shared.is_playing());
+
+        let original = app.song.clone();
+        app.song.bpm = 137.0;
+        app.publish_now();
+        app.commit_history();
+        engine.process(&mut block, 2);
+
+        assert!(app.undo());
+        let peak_after = (0..4)
+            .map(|_| {
+                engine.process(&mut block, 2);
+                assert!(block.iter().all(|s| s.is_finite()));
+                block.iter().fold(0.0f32, |peak, s| peak.max(s.abs()))
+            })
+            .fold(0.0f32, f32::max);
+        assert!(
+            peak_after > 0.001,
+            "playback went silent after undo: {peak_after}"
+        );
+        assert!(shared.is_playing());
+        let published = shared
+            .song
+            .lock()
+            .expect("snapshot lock")
+            .as_ref()
+            .expect("published song")
+            .as_ref()
+            .clone();
+        assert_eq!(published, original);
     }
 }

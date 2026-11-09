@@ -469,7 +469,7 @@ mod tests {
         track.extend([0x00, 0x90, 60, 100]);
         let mut bytes = smf(0, &[track]);
         bytes.truncate(bytes.len() - 2);
-        let error = from_bytes(&bytes, "Broken").err().expect("must reject");
+        let error = from_bytes(&bytes, "Broken").expect_err("must reject");
         assert!(error.contains("truncated") || error.contains("missing end-of-track"));
     }
 
@@ -478,9 +478,7 @@ mod tests {
         let mut track = time_and_tempo();
         track.extend([0x00, 0x90, 60, 100]);
         let bytes = smf(0, &[track]);
-        let error = from_bytes(&bytes, "Unterminated")
-            .err()
-            .expect("must reject");
+        let error = from_bytes(&bytes, "Unterminated").expect_err("must reject");
         assert!(error.contains("missing end-of-track"));
     }
 
@@ -488,9 +486,7 @@ mod tests {
     fn rejects_a_midi_file_without_notes() {
         let mut track = time_and_tempo();
         track.extend([0x00, 0xFF, 0x2F, 0x00]);
-        let error = from_bytes(&smf(0, &[track]), "Empty")
-            .err()
-            .expect("must reject");
+        let error = from_bytes(&smf(0, &[track]), "Empty").expect_err("must reject");
         assert!(error.contains("no note events") || error.contains("no tracks with notes"));
     }
 }
