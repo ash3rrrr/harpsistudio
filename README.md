@@ -694,21 +694,17 @@ expectations.
 
 These are verified gaps in the current tree, not a generic wish list:
 
-1. **Good first issue — version `.harp` files.** Projects are currently
-   pretty-printed `Song` JSON with no format field
-   (`crates/hs-core/src/project.rs`). Add a schema version and a clear
-   migration/error path for older or newer files.
-2. **Good first issue — exercise Linux desktop startup.** CI builds `hs-app` on
+1. **Good first issue — exercise Linux desktop startup.** CI builds `hs-app` on
    Ubuntu, but the UI is only manually checked on Windows. Document a tested
    distro/audio stack and add a headless startup smoke test.
-3. **Larger project — MIDI mapping and multiple ports.** Only the first input
+2. **Larger project — MIDI mapping and multiple ports.** Only the first input
    port is opened, and only note, velocity, sustain (CC64) and all-notes-off are
    handled (`crates/hs-app/src/midi.rs`). Add port selection and CC learn.
-4. **Larger project — richer MIDI import.** The importer handles format 0/1,
+3. **Larger project — richer MIDI import.** The importer handles format 0/1,
    4/4 files and performance data, but not automation, pitch bend, tempo maps,
    odd meters or original instrument identity. Add those deliberately with
    round-trip fixtures.
-5. **Larger project — longer arrangements and richer audio import.**
+4. **Larger project — longer arrangements and richer audio import.**
    Arrangement editing is a 16-bar canvas, and audio import is WAV-only with
    eight-second mono takes. Extend both deliberately with regression coverage.
 
